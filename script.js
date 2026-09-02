@@ -1,3 +1,50 @@
+// ===== AUTH CHECK =====
+let currentUser = null;
+
+(function(){
+  const loggedIn=localStorage.getItem('loggedIn');
+  const userData=localStorage.getItem('user');
+  if(loggedIn!=='true'||!userData){
+    window.location.replace('login.html');
+    return;
+  }
+  try{
+    currentUser=JSON.parse(userData);
+    if(!currentUser.name||!currentUser.role){
+      window.location.replace('login.html');
+      return;
+    }
+    const nameEl=document.querySelector('.sidebar-footer .user-info .name');
+    const roleEl=document.querySelector('.sidebar-footer .user-info .role');
+    if(nameEl)nameEl.textContent=currentUser.name;
+    if(roleEl)roleEl.textContent=currentUser.role;
+    applyRoleAccess(currentUser.role);
+  }catch(e){
+    window.location.replace('login.html');
+  }
+})();
+
+function applyRoleAccess(role){
+  const navItems=document.querySelectorAll('.nav-item[data-role]');
+  navItems.forEach(item=>{
+    const allowed=item.getAttribute('data-role').split(',');
+    if(!allowed.includes(role)){
+      item.style.display='none';
+    }
+  });
+  if(role!=='superadmin'){
+    const mgmtNav=document.querySelector('.nav-item[data-page="pengaturan"]');
+    if(mgmtNav)mgmtNav.style.display='none';
+  }
+}
+
+function handleLogout(){
+  logActivity('Keluar dari sistem');
+  localStorage.removeItem('loggedIn');
+  localStorage.removeItem('user');
+  window.location.href='login.html';
+}
+
 // ===== LUCIDE ICONS INIT =====
 document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons()});
 
@@ -226,3 +273,438 @@ document.getElementById('searchSparepart').addEventListener('input',function(){
 renderServis(servisData);
 renderPelanggan(pelangganData);
 renderSparepart(sparepartData);
+
+// ===== USER MANAGEMENT =====
+const defaultUsers = [
+  {id:1,nama:'Super Admin',username:'admin',email:'admin@loopfix.com',noHP:'081234567890',password:'admin123',role:'superadmin',status:'active',createdAt:'2026-01-01T00:00:00.000Z',activityLog:[]}
+];
+
+function initUsers(){
+  let users=JSON.parse(localStorage.getItem('users')||'[]');
+  const superadmin=users.find(u=>u.role==='superadmin');
+  if(!superadmin){
+    users.unshift({id:1,nama:'Super Admin',username:'admin',email:'admin@loopfix.com',noHP:'081234567890',password:'admin123',role:'superadmin',status:'active',createdAt:'2026-01-01T00:00:00.000Z',activityLog:[]});
+  }else{
+    superadmin.username='admin';
+    superadmin.password='admin123';
+    superadmin.nama='Super Admin';
+    superadmin.email='admin@loopfix.com';
+    superadmin.status='active';
+  }
+  localStorage.setItem('users',JSON.stringify(users));
+  return users;
+}
+
+function getUsers(){return JSON.parse(localStorage.getItem('users')||'[]')}
+function saveUsers(users){localStorage.setItem('users',JSON.stringify(users))}
+
+function logActivity(action){
+  if(!currentUser)return;
+  const users=getUsers();
+  const user=users.find(u=>u.username===currentUser.username);
+  if(user){
+    if(!user.activityLog)user.activityLog=[];
+    user.activityLog.unshift({
+      action,
+      time:new Date().toISOString()
+    });
+    if(user.activityLog.length>50)user.activityLog=user.activityLog.slice(0,50);
+    saveUsers(users);
+  }
+}
+
+function renderUserManagement(){
+  const users=getUsers();
+  const tbody=document.getElementById('userTableBody');
+  if(!tbody)return;
+
+  const roleColors={superadmin:'#7C3AED',admin:'#3B82F6',teknisi:'#EA580C'};
+  const statusColors={active:'status-active',pending:'status-pending',inactive:'status-inactive'};
+  const statusLabels={active:'Aktif',pending:'Pending',inactive:'Nonaktif'};
+  const roleLabels={superadmin:'Superadmin',admin:'Admin',teknisi:'Teknisi'};
+
+  tbody.innerHTML=users.map(u=>`
+    <tr>
+      <td>
+        <div class="user-cell">
+          <div class="user-avatar" style="background:${roleColors[u.role]||'#64748B'}">${u.nama.split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
+          <div class="user-cell-info">
+            <div class="uc-name">${u.nama}</div>
+            <div class="uc-email">${u.email}</div>
+          </div>
+        </div>
+      </td>
+      <td><span style="font-family:monospace;font-size:12px">${u.username}</span></td>
+      <td><span class="role-badge role-${u.role}">${roleLabels[u.role]||u.role}</span></td>
+      <td><span class="status-badge ${statusColors[u.status]}">${statusLabels[u.status]}</span></td>
+      <td>
+        <div class="action-menu">
+          <button class="action-btn" onclick="toggleActionMenu(this)">
+            <i data-lucide="more-vertical"></i>
+          </button>
+          <div class="action-dropdown">
+            <div class="action-dropdown-item" onclick="viewUserProfile(${u.id})">
+              <i data-lucide="eye"></i> Lihat Profil
+            </div>
+            ${u.role!=='superadmin'?`
+            <div class="action-dropdown-item" onclick="editUser(${u.id})">
+              <i data-lucide="pencil"></i> Edit
+            </div>
+            <div class="action-dropdown-item" onclick="resetUserPassword(${u.id})">
+              <i data-lucide="key"></i> Reset Password
+            </div>
+            ${u.status==='active'?`
+            <div class="action-dropdown-item" onclick="toggleUserStatus(${u.id},'inactive')">
+              <i data-lucide="user-x"></i> Nonaktifkan
+            </div>
+            `:`
+            <div class="action-dropdown-item" onclick="toggleUserStatus(${u.id},'active')">
+              <i data-lucide="user-check"></i> Aktifkan
+            </div>
+            `}
+            <div class="action-dropdown-item" onclick="viewUserActivity(${u.id})">
+              <i data-lucide="activity"></i> Riwayat Aktif
+            </div>
+            <div class="action-dropdown-item danger" onclick="deleteUser(${u.id})">
+              <i data-lucide="trash-2"></i> Hapus
+            </div>
+            `:`
+            <div class="action-dropdown-item" onclick="viewUserActivity(${u.id})">
+              <i data-lucide="activity"></i> Riwayat Aktif
+            </div>
+            `}
+          </div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  lucide.createIcons();
+}
+
+function toggleActionMenu(btn){
+  document.querySelectorAll('.action-dropdown.show').forEach(d=>d.classList.remove('show'));
+  const dropdown=btn.nextElementSibling;
+  dropdown.classList.toggle('show');
+}
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.action-menu')){
+    document.querySelectorAll('.action-dropdown.show').forEach(d=>d.classList.remove('show'));
+  }
+});
+
+function viewUserProfile(id){
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u)return;
+  const roleLabels={superadmin:'Superadmin',admin:'Admin',teknisi:'Teknisi'};
+  const statusLabels={active:'Aktif',pending:'Pending',inactive:'Nonaktif'};
+  const statusColors={active:'status-active',pending:'status-pending',inactive:'status-inactive'};
+  const roleColors={superadmin:'#7C3AED',admin:'#3B82F6',teknisi:'#EA580C'};
+
+  document.getElementById('userDetailContent').innerHTML=`
+    <div class="user-modal-detail">
+      <div class="user-modal-avatar" style="background:${roleColors[u.role]}">${u.nama.split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
+      <div class="user-modal-info">
+        <h2>${u.nama}</h2>
+        <div class="umi-role"><span class="role-badge role-${u.role}">${roleLabels[u.role]}</span> <span class="status-badge ${statusColors[u.status]}">${statusLabels[u.status]}</span></div>
+        <div class="umi-email"><i data-lucide="mail"></i> ${u.email}</div>
+      </div>
+    </div>
+    <div class="user-detail-section">
+      <h4>Data Diri</h4>
+      <div class="user-detail-row"><span class="udl">Username</span><span class="udv">${u.username}</span></div>
+      <div class="user-detail-row"><span class="udl">No. HP</span><span class="udv">${u.noHP}</span></div>
+      <div class="user-detail-row"><span class="udl">Role</span><span class="udv">${roleLabels[u.role]}</span></div>
+      <div class="user-detail-row"><span class="udl">Status</span><span class="udv">${statusLabels[u.status]}</span></div>
+      <div class="user-detail-row"><span class="udl">Terdaftar</span><span class="udv">${new Date(u.createdAt).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</span></div>
+    </div>
+  `;
+  openModal('userDetailModal');
+}
+
+function editUser(id){
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u||u.role==='superadmin')return;
+
+  document.getElementById('editUserId').value=u.id;
+  document.getElementById('editNama').value=u.nama;
+  document.getElementById('editUsername').value=u.username;
+  document.getElementById('editEmail').value=u.email;
+  document.getElementById('editNoHP').value=u.noHP;
+  document.getElementById('editRole').value=u.role;
+  openModal('editUserModal');
+}
+
+function saveEditUser(){
+  const id=parseInt(document.getElementById('editUserId').value);
+  const nama=document.getElementById('editNama').value.trim();
+  const username=document.getElementById('editUsername').value.trim();
+  const email=document.getElementById('editEmail').value.trim();
+  const noHP=document.getElementById('editNoHP').value.trim();
+  const role=document.getElementById('editRole').value;
+
+  if(!nama||!username||!email||!noHP||!role){
+    alert('Semua field wajib diisi');
+    return;
+  }
+
+  const users=getUsers();
+  const existing=users.find(u=>u.username===username&&u.id!==id);
+  if(existing){
+    alert('Username sudah digunakan');
+    return;
+  }
+
+  const user=users.find(u=>u.id===id);
+  if(user){
+    user.nama=nama;
+    user.username=username;
+    user.email=email;
+    user.noHP=noHP;
+    user.role=role;
+    saveUsers(users);
+    renderUserManagement();
+    closeModal('editUserModal');
+  }
+}
+
+function resetUserPassword(id){
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u||u.role==='superadmin')return;
+
+  const newPass=prompt('Masukkan password baru untuk '+u.username+':');
+  if(!newPass||newPass.length<6){
+    if(newPass!==null)alert('Password minimal 6 karakter');
+    return;
+  }
+
+  u.password=newPass;
+  saveUsers(users);
+  alert('Password berhasil direset');
+}
+
+function toggleUserStatus(id,newStatus){
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u||u.role==='superadmin')return;
+
+  const action=newStatus==='active'?'mengaktifkan':'menonaktifkan';
+  if(!confirm('Yakin ingin '+action+' akun '+u.username+'?'))return;
+
+  u.status=newStatus;
+  saveUsers(users);
+  renderUserManagement();
+}
+
+function deleteUser(id){
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u||u.role==='superadmin')return;
+
+  if(!confirm('Yakin ingin menghapus akun '+u.username+'? Tindakan ini tidak dapat dibatalkan.'))return;
+
+  const newUsers=users.filter(x=>x.id!==id);
+  saveUsers(newUsers);
+  renderUserManagement();
+}
+
+function viewUserActivity(id){
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u)return;
+
+  const roleLabels={superadmin:'Superadmin',admin:'Admin',teknisi:'Teknisi'};
+  const logs=u.activityLog||[];
+
+  document.getElementById('activityContent').innerHTML=`
+    <div class="user-modal-detail">
+      <div class="user-modal-avatar" style="background:${u.role==='superadmin'?'#7C3AED':u.role==='admin'?'#3B82F6':'#EA580C'}">${u.nama.split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
+      <div class="user-modal-info">
+        <h2>${u.nama}</h2>
+        <div class="umi-role"><span class="role-badge role-${u.role}">${roleLabels[u.role]}</span></div>
+      </div>
+    </div>
+    <div class="user-detail-section">
+      <h4>Riwayat Aktivitas</h4>
+      ${logs.length===0?'<p style="font-size:12.5px;color:var(--text-secondary);padding:12px 0">Belum ada aktivitas</p>':
+        logs.map(log=>`
+          <div class="activity-log-item">
+            <div class="activity-log-dot" style="background:${log.action.includes('Login')?'#059669':log.action.includes('Keluar')?'#DC2626':'#3B82F6'}"></div>
+            <div>
+              <div class="activity-log-text"><strong>${log.action}</strong></div>
+              <div class="activity-log-time">${new Date(log.time).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+            </div>
+          </div>
+        `).join('')}
+    </div>
+  `;
+  openModal('activityModal');
+}
+
+function approveUser(id){
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u)return;
+  u.status='active';
+  saveUsers(users);
+  renderUserManagement();
+  alert('Akun '+u.username+' telah disetujui');
+}
+
+function rejectUser(id){
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u)return;
+  u.status='inactive';
+  saveUsers(users);
+  renderUserManagement();
+  alert('Akun '+u.username+' telah ditolak');
+}
+
+initUsers();
+if(document.getElementById('userTableBody'))renderUserManagement();
+
+// ===== USER SEARCH & FILTER =====
+function filterUserStatus(btn,status){
+  document.querySelectorAll('#page-user-management .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const users=getUsers();
+  if(status==='all')renderUserManagement();
+  else{
+    const tbody=document.getElementById('userTableBody');
+    const filtered=users.filter(u=>u.status===status);
+    const roleColors={superadmin:'#7C3AED',admin:'#3B82F6',teknisi:'#EA580C'};
+    const statusColors={active:'status-active',pending:'status-pending',inactive:'status-inactive'};
+    const statusLabels={active:'Aktif',pending:'Pending',inactive:'Nonaktif'};
+    const roleLabels={superadmin:'Superadmin',admin:'Admin',teknisi:'Teknisi'};
+    tbody.innerHTML=filtered.map(u=>`
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar" style="background:${roleColors[u.role]||'#64748B'}">${u.nama.split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
+            <div class="user-cell-info">
+              <div class="uc-name">${u.nama}</div>
+              <div class="uc-email">${u.email}</div>
+            </div>
+          </div>
+        </td>
+        <td><span style="font-family:monospace;font-size:12px">${u.username}</span></td>
+        <td><span class="role-badge role-${u.role}">${roleLabels[u.role]||u.role}</span></td>
+        <td><span class="status-badge ${statusColors[u.status]}">${statusLabels[u.status]}</span></td>
+        <td>
+          <div class="action-menu">
+            <button class="action-btn" onclick="toggleActionMenu(this)">
+              <i data-lucide="more-vertical"></i>
+            </button>
+            <div class="action-dropdown">
+              <div class="action-dropdown-item" onclick="viewUserProfile(${u.id})">
+                <i data-lucide="eye"></i> Lihat Profil
+              </div>
+              ${u.role!=='superadmin'?`
+              <div class="action-dropdown-item" onclick="editUser(${u.id})">
+                <i data-lucide="pencil"></i> Edit
+              </div>
+              <div class="action-dropdown-item" onclick="resetUserPassword(${u.id})">
+                <i data-lucide="key"></i> Reset Password
+              </div>
+              ${u.status==='active'?`
+              <div class="action-dropdown-item" onclick="toggleUserStatus(${u.id},'inactive')">
+                <i data-lucide="user-x"></i> Nonaktifkan
+              </div>
+              `:`
+              <div class="action-dropdown-item" onclick="toggleUserStatus(${u.id},'active')">
+                <i data-lucide="user-check"></i> Aktifkan
+              </div>
+              `}
+              <div class="action-dropdown-item" onclick="viewUserActivity(${u.id})">
+                <i data-lucide="activity"></i> Riwayat Aktif
+              </div>
+              <div class="action-dropdown-item danger" onclick="deleteUser(${u.id})">
+                <i data-lucide="trash-2"></i> Hapus
+              </div>
+              `:`
+              <div class="action-dropdown-item" onclick="viewUserActivity(${u.id})">
+                <i data-lucide="activity"></i> Riwayat Aktif
+              </div>
+              `}
+            </div>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+    lucide.createIcons();
+  }
+}
+
+const searchUserEl=document.getElementById('searchUser');
+if(searchUserEl){
+  searchUserEl.addEventListener('input',function(){
+    const q=this.value.toLowerCase();
+    const users=getUsers();
+    const filtered=users.filter(u=>u.nama.toLowerCase().includes(q)||u.username.toLowerCase().includes(q)||u.email.toLowerCase().includes(q));
+    const tbody=document.getElementById('userTableBody');
+    const roleColors={superadmin:'#7C3AED',admin:'#3B82F6',teknisi:'#EA580C'};
+    const statusColors={active:'status-active',pending:'status-pending',inactive:'status-inactive'};
+    const statusLabels={active:'Aktif',pending:'Pending',inactive:'Nonaktif'};
+    const roleLabels={superadmin:'Superadmin',admin:'Admin',teknisi:'Teknisi'};
+    tbody.innerHTML=filtered.map(u=>`
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar" style="background:${roleColors[u.role]||'#64748B'}">${u.nama.split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
+            <div class="user-cell-info">
+              <div class="uc-name">${u.nama}</div>
+              <div class="uc-email">${u.email}</div>
+            </div>
+          </div>
+        </td>
+        <td><span style="font-family:monospace;font-size:12px">${u.username}</span></td>
+        <td><span class="role-badge role-${u.role}">${roleLabels[u.role]||u.role}</span></td>
+        <td><span class="status-badge ${statusColors[u.status]}">${statusLabels[u.status]}</span></td>
+        <td>
+          <div class="action-menu">
+            <button class="action-btn" onclick="toggleActionMenu(this)">
+              <i data-lucide="more-vertical"></i>
+            </button>
+            <div class="action-dropdown">
+              <div class="action-dropdown-item" onclick="viewUserProfile(${u.id})">
+                <i data-lucide="eye"></i> Lihat Profil
+              </div>
+              ${u.role!=='superadmin'?`
+              <div class="action-dropdown-item" onclick="editUser(${u.id})">
+                <i data-lucide="pencil"></i> Edit
+              </div>
+              <div class="action-dropdown-item" onclick="resetUserPassword(${u.id})">
+                <i data-lucide="key"></i> Reset Password
+              </div>
+              ${u.status==='active'?`
+              <div class="action-dropdown-item" onclick="toggleUserStatus(${u.id},'inactive')">
+                <i data-lucide="user-x"></i> Nonaktifkan
+              </div>
+              `:`
+              <div class="action-dropdown-item" onclick="toggleUserStatus(${u.id},'active')">
+                <i data-lucide="user-check"></i> Aktifkan
+              </div>
+              `}
+              <div class="action-dropdown-item" onclick="viewUserActivity(${u.id})">
+                <i data-lucide="activity"></i> Riwayat Aktif
+              </div>
+              <div class="action-dropdown-item danger" onclick="deleteUser(${u.id})">
+                <i data-lucide="trash-2"></i> Hapus
+              </div>
+              `:`
+              <div class="action-dropdown-item" onclick="viewUserActivity(${u.id})">
+                <i data-lucide="activity"></i> Riwayat Aktif
+              </div>
+              `}
+            </div>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+    lucide.createIcons();
+  });
+}

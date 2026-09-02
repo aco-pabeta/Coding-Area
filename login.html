@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LoopFix - Login</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="login-body">
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">
+          <img src="logo.png?v=1" alt="LoopFix" class="login-logo-img">
+          <div class="login-logo-text">Services Management</div>
+        </div>
+        <p style="margin-top:12px">Masuk ke akun Anda untuk melanjutkan</p>
+      </div>
+
+      <div class="login-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-icon">
+            <i data-lucide="user"></i>
+            <input type="text" id="username" placeholder="Masukkan username" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-icon">
+            <i data-lucide="lock"></i>
+            <input type="password" id="password" placeholder="Masukkan password">
+            <button type="button" class="toggle-password" onclick="togglePassword()">
+              <i data-lucide="eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="login-options">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember">
+            <span>Ingat saya</span>
+          </label>
+          <a href="#" class="forgot-link">Lupa password?</a>
+        </div>
+
+        <button class="btn-login" onclick="handleLogin()">
+          <i data-lucide="log-in"></i>
+          <span>Masuk</span>
+        </button>
+
+        <div class="login-error" id="loginError">
+          <i data-lucide="alert-circle"></i>
+          <span>Username atau password salah</span>
+        </div>
+      </div>
+
+      <div class="login-footer">
+        <p>Belum punya akun? <a href="register.html" style="color:var(--primary);font-weight:600;text-decoration:none">Daftar</a></p>
+      </div>
+    </div>
+
+    <div class="login-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // Force clear session saat buka login page
+    localStorage.removeItem('loggedIn');
+    localStorage.removeItem('user');
+
+    // Init default superadmin
+    (function(){
+      let users=JSON.parse(localStorage.getItem('users')||'[]');
+      const superadmin=users.find(u=>u.role==='superadmin');
+      if(!superadmin){
+        users.unshift({id:1,nama:'Super Admin',username:'admin',email:'admin@loopfix.com',noHP:'081234567890',password:'admin123',role:'superadmin',status:'active',createdAt:'2026-01-01T00:00:00.000Z',activityLog:[]});
+      }else{
+        superadmin.username='admin';
+        superadmin.password='admin123';
+        superadmin.nama='Super Admin';
+        superadmin.email='admin@loopfix.com';
+        superadmin.status='active';
+      }
+      localStorage.setItem('users',JSON.stringify(users));
+    })();
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem('users') || '[]');
+    }
+
+    function togglePassword() {
+      const pwd = document.getElementById('password');
+      const btn = document.querySelector('.toggle-password');
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        btn.innerHTML = '<i data-lucide="eye-off"></i>';
+      } else {
+        pwd.type = 'password';
+        btn.innerHTML = '<i data-lucide="eye"></i>';
+      }
+      lucide.createIcons();
+    }
+
+    function handleLogin() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorEl = document.getElementById('loginError');
+      const btn = document.querySelector('.btn-login');
+
+      errorEl.style.display = 'none';
+
+      if (!username || !password) {
+        errorEl.querySelector('span').textContent = 'Username dan password harus diisi';
+        errorEl.style.display = 'flex';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span><span>Memproses...</span>';
+
+      setTimeout(() => {
+        const users = getUsers();
+        const user = users.find(u => u.username === username && u.password === password);
+
+        if (user) {
+          if (user.status === 'pending') {
+            errorEl.querySelector('span').textContent = 'Akun Anda masih menunggu persetujuan Superadmin';
+            errorEl.style.display = 'flex';
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="log-in"></i><span>Masuk</span>';
+            lucide.createIcons();
+            return;
+          }
+          if (user.status === 'inactive') {
+            errorEl.querySelector('span').textContent = 'Akun Anda telah dinonaktifkan. Hubungi Superadmin.';
+            errorEl.style.display = 'flex';
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="log-in"></i><span>Masuk</span>';
+            lucide.createIcons();
+            return;
+          }
+
+          localStorage.setItem('loggedIn', 'true');
+          localStorage.setItem('user', JSON.stringify({ name: user.nama, role: user.role, username: user.username }));
+
+          // Log activity
+          const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+          const loginUser = allUsers.find(u => u.id === user.id);
+          if (loginUser) {
+            if (!loginUser.activityLog) loginUser.activityLog = [];
+            loginUser.activityLog.unshift({ action: 'Login ke sistem', time: new Date().toISOString() });
+            if (loginUser.activityLog.length > 50) loginUser.activityLog = loginUser.activityLog.slice(0, 50);
+            localStorage.setItem('users', JSON.stringify(allUsers));
+          }
+
+          window.location.href = 'index.html';
+        } else {
+          errorEl.querySelector('span').textContent = 'Username atau password salah';
+          errorEl.style.display = 'flex';
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="log-in"></i><span>Masuk</span>';
+          lucide.createIcons();
+          document.getElementById('password').value = '';
+          document.getElementById('password').focus();
+        }
+      }, 800);
+    }
+
+    document.getElementById('password').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') handleLogin();
+    });
+    document.getElementById('username').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') document.getElementById('password').focus();
+    });
+  </script>
+</body>
+</html>

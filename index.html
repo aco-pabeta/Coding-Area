@@ -3,41 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ServisKu - Manajemen Servis HP</title>
+<title>LoopFix - Manajemen Servis HP</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+<script>
+(function(){
+  var loggedIn=localStorage.getItem('loggedIn');
+  var user=localStorage.getItem('user');
+  if(loggedIn!=='true'||!user){
+    localStorage.clear();
+    window.location.replace('login.html');
+    return;
+  }
+  try{
+    var u=JSON.parse(user);
+    if(!u.name||!u.role||!u.username){
+      localStorage.clear();
+      window.location.replace('login.html');
+    }
+  }catch(e){
+    localStorage.clear();
+    window.location.replace('login.html');
+  }
+})();
+</script>
 
 <aside class="sidebar">
   <div class="logo">
-    <div class="logo-icon"><i data-lucide="smartphone"></i></div>
-    <div>
-      <h2>ServisKu</h2>
-      <span>Service Management</span>
+    <img src="logo.png?v=1" alt="LoopFix" class="logo-img">
+    <div class="logo-text">
+      <span>Services Management</span>
     </div>
   </div>
   <div class="nav-section">Menu</div>
-  <div class="nav-item active" onclick="showPage('dashboard',this)">
+  <div class="nav-item active" data-role="superadmin,admin" onclick="showPage('dashboard',this)">
     <i data-lucide="layout-dashboard"></i>Dashboard
   </div>
-  <div class="nav-item" onclick="showPage('servis',this)">
+  <div class="nav-item" data-role="superadmin,admin,teknisi" onclick="showPage('servis',this)">
     <i data-lucide="wrench"></i>Data Servis
   </div>
-  <div class="nav-item" onclick="showPage('pelanggan',this)">
+  <div class="nav-item" data-role="superadmin,admin" onclick="showPage('pelanggan',this)">
     <i data-lucide="users"></i>Pelanggan
   </div>
-  <div class="nav-item" onclick="showPage('sparepart',this)">
+  <div class="nav-item" data-role="superadmin,admin" onclick="showPage('sparepart',this)">
     <i data-lucide="package"></i>Sparepart
   </div>
-  <div class="nav-item" onclick="showPage('keuangan',this)">
+  <div class="nav-item" data-role="superadmin,admin" onclick="showPage('keuangan',this)">
     <i data-lucide="wallet"></i>Keuangan
   </div>
-  <div class="nav-item" onclick="showPage('laporan',this)">
+  <div class="nav-item" data-role="superadmin,admin" onclick="showPage('laporan',this)">
     <i data-lucide="bar-chart-3"></i>Laporan
   </div>
   <div class="nav-section">Sistem</div>
-  <div class="nav-item" onclick="showPage('pengaturan',this)">
+  <div class="nav-item" data-role="superadmin,admin" onclick="showPage('pengaturan',this)">
     <i data-lucide="settings"></i>Pengaturan
   </div>
   <div class="sidebar-footer">
@@ -45,6 +65,9 @@
     <div class="user-info">
       <div class="name">Kurniawan</div>
       <div class="role">Admin Utama</div>
+    </div>
+    <div style="margin-left:auto;cursor:pointer;padding:6px;border-radius:6px;transition:background .15s" onclick="handleLogout()" title="Keluar">
+      <i data-lucide="log-out" style="width:16px;height:16px;color:#94A3B8"></i>
     </div>
   </div>
 </aside>
@@ -413,6 +436,11 @@
       </div>
       <div class="settings-list">
         <div class="settings-group-title">Sistem</div>
+        <div class="settings-item" id="navUserMgmt" onclick="showPage('user-management',null)">
+          <div class="si-icon" style="background:#EDE9FE;color:#7C3AED"><i data-lucide="user-cog"></i></div>
+          <div class="si-text"><div class="si-title">Manajemen Pengguna</div><div class="si-desc">Kelola akun, role, dan hak akses pengguna</div></div>
+          <div class="si-arrow"><i data-lucide="chevron-right"></i></div>
+        </div>
         <div class="settings-item">
           <div class="si-icon" style="background:#D1FAE5;color:#059669"><i data-lucide="store"></i></div>
           <div class="si-text"><div class="si-title">Profil Toko</div><div class="si-desc">Nama toko, alamat, dan kontak</div></div>
@@ -457,6 +485,37 @@
           <div class="si-arrow"><i data-lucide="chevron-right"></i></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ========== MANAJEMEN PENGGUNA ========== -->
+  <div id="page-user-management" class="page">
+    <div class="page-header">
+      <div><h1>Manajemen Pengguna</h1><p>Kelola akun, role, dan hak akses pengguna</p></div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input type="text" placeholder="Cari nama, username, email..." id="searchUser">
+        </div>
+        <button class="filter-btn active" onclick="filterUserStatus(this,'all')">Semua</button>
+        <button class="filter-btn" onclick="filterUserStatus(this,'active')">Aktif</button>
+        <button class="filter-btn" onclick="filterUserStatus(this,'pending')">Pending</button>
+        <button class="filter-btn" onclick="filterUserStatus(this,'inactive')">Nonaktif</button>
+      </div>
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>Pengguna</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th style="width:60px">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -524,6 +583,51 @@
       <div class="form-group"><label>Kategori</label><select><option>Layar</option><option>Baterai</option><option>Charging</option><option>Kamera</option><option>Sensor</option><option>Lainnya</option></select></div>
     </div>
     <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('addSparepartModal')">Batal</button><button class="btn-primary" onclick="closeModal('addSparepartModal')">Simpan</button></div>
+  </div>
+</div>
+
+<!-- MODAL: USER PROFILE -->
+<div class="modal-overlay" id="userDetailModal">
+  <div class="modal user-modal">
+    <div class="modal-header"><h3>Profil Pengguna</h3><button class="modal-close" onclick="closeModal('userDetailModal')"><i data-lucide="x"></i></button></div>
+    <div class="modal-body" id="userDetailContent"></div>
+  </div>
+</div>
+
+<!-- MODAL: EDIT USER -->
+<div class="modal-overlay" id="editUserModal">
+  <div class="modal user-modal">
+    <div class="modal-header"><h3>Edit Pengguna</h3><button class="modal-close" onclick="closeModal('editUserModal')"><i data-lucide="x"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editUserId">
+      <div class="form-group"><label>Nama Lengkap</label><input type="text" id="editNama" placeholder="Nama lengkap"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Username</label><input type="text" id="editUsername" placeholder="Username"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="editEmail" placeholder="Email"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>No. HP</label><input type="text" id="editNoHP" placeholder="No. HP"></div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="editRole">
+            <option value="admin">Admin</option>
+            <option value="teknisi">Teknisi</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('editUserModal')">Batal</button>
+      <button class="btn-primary" onclick="saveEditUser()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ACTIVITY LOG -->
+<div class="modal-overlay" id="activityModal">
+  <div class="modal user-modal">
+    <div class="modal-header"><h3>Riwayat Aktivitas</h3><button class="modal-close" onclick="closeModal('activityModal')"><i data-lucide="x"></i></button></div>
+    <div class="modal-body" id="activityContent"></div>
   </div>
 </div>
 

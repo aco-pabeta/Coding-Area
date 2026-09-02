@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LoopFix - Daftar Akun</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="login-body">
+
+  <div class="login-container">
+    <div class="login-card" style="max-width:460px">
+      <div class="login-header">
+        <div class="login-logo">
+          <img src="logo.png?v=1" alt="LoopFix" class="login-logo-img">
+          <div class="login-logo-text">Services Management</div>
+        </div>
+        <h1 style="font-size:20px;margin-top:12px">Daftar Akun Baru</h1>
+        <p>Isi data diri Anda untuk mendaftar</p>
+      </div>
+
+      <div class="login-form">
+        <div class="form-group">
+          <label for="regNama">Nama Lengkap</label>
+          <div class="input-icon">
+            <i data-lucide="user"></i>
+            <input type="text" id="regNama" placeholder="Nama lengkap">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regUsername">Username</label>
+            <div class="input-icon">
+              <i data-lucide="at-sign"></i>
+              <input type="text" id="regUsername" placeholder="Username">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="regEmail">Email</label>
+            <div class="input-icon">
+              <i data-lucide="mail"></i>
+              <input type="email" id="regEmail" placeholder="email@domain.com">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="regNoHP">No. HP</label>
+          <div class="input-icon">
+            <i data-lucide="phone"></i>
+            <input type="text" id="regNoHP" placeholder="08xxxxxxxxxx">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regPassword">Password</label>
+            <div class="input-icon">
+              <i data-lucide="lock"></i>
+              <input type="password" id="regPassword" placeholder="Minimal 6 karakter">
+              <button type="button" class="toggle-password" onclick="togglePass('regPassword',this)">
+                <i data-lucide="eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="regConfirm">Konfirmasi Password</label>
+            <div class="input-icon">
+              <i data-lucide="lock"></i>
+              <input type="password" id="regConfirm" placeholder="Ulangi password">
+              <button type="button" class="toggle-password" onclick="togglePass('regConfirm',this)">
+                <i data-lucide="eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="regRole">Role / Jabatan</label>
+          <div class="input-icon">
+            <i data-lucide="briefcase"></i>
+            <select id="regRole" style="padding-left:40px">
+              <option value="">Pilih role...</option>
+              <option value="admin">Admin</option>
+              <option value="teknisi">Teknisi</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="reg-info">
+          <i data-lucide="info"></i>
+          <span>Akun Anda akan diverifikasi oleh Superadmin sebelum dapat digunakan.</span>
+        </div>
+
+        <button class="btn-login" onclick="handleRegister()" style="margin-top:16px">
+          <i data-lucide="user-plus"></i>
+          <span>Daftar</span>
+        </button>
+
+        <div class="login-error" id="regError">
+          <i data-lucide="alert-circle"></i>
+          <span></span>
+        </div>
+
+        <div class="login-success" id="regSuccess">
+          <i data-lucide="check-circle"></i>
+          <span></span>
+        </div>
+      </div>
+
+      <div class="login-footer">
+        <p>Sudah punya akun? <a href="login.html" style="color:var(--primary);font-weight:600;text-decoration:none">Masuk</a></p>
+      </div>
+    </div>
+
+    <div class="login-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function togglePass(id, btn) {
+      const input = document.getElementById(id);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = '<i data-lucide="eye-off"></i>';
+      } else {
+        input.type = 'password';
+        btn.innerHTML = '<i data-lucide="eye"></i>';
+      }
+      lucide.createIcons();
+    }
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem('users') || '[]');
+    }
+
+    function handleRegister() {
+      const nama = document.getElementById('regNama').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const noHP = document.getElementById('regNoHP').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regConfirm').value;
+      const role = document.getElementById('regRole').value;
+      const errorEl = document.getElementById('regError');
+      const successEl = document.getElementById('regSuccess');
+      const btn = document.querySelector('.btn-login');
+
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      if (!nama || !username || !email || !noHP || !password || !confirm || !role) {
+        errorEl.querySelector('span').textContent = 'Semua field wajib diisi';
+        errorEl.style.display = 'flex';
+        return;
+      }
+
+      if (password.length < 6) {
+        errorEl.querySelector('span').textContent = 'Password minimal 6 karakter';
+        errorEl.style.display = 'flex';
+        return;
+      }
+
+      if (password !== confirm) {
+        errorEl.querySelector('span').textContent = 'Konfirmasi password tidak cocok';
+        errorEl.style.display = 'flex';
+        return;
+      }
+
+      const users = getUsers();
+
+      if (users.find(u => u.username === username)) {
+        errorEl.querySelector('span').textContent = 'Username sudah digunakan';
+        errorEl.style.display = 'flex';
+        return;
+      }
+
+      if (users.find(u => u.email === email)) {
+        errorEl.querySelector('span').textContent = 'Email sudah terdaftar';
+        errorEl.style.display = 'flex';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span><span>Memproses...</span>';
+
+      setTimeout(() => {
+        const newUser = {
+          id: Date.now(),
+          nama,
+          username,
+          email,
+          noHP,
+          password,
+          role,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          activityLog: []
+        };
+
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+
+        successEl.querySelector('span').textContent = 'Pendaftaran berhasil! Silakan tunggu persetujuan Superadmin.';
+        successEl.style.display = 'flex';
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="user-plus"></i><span>Daftar</span>';
+        lucide.createIcons();
+
+        document.getElementById('regNama').value = '';
+        document.getElementById('regUsername').value = '';
+        document.getElementById('regEmail').value = '';
+        document.getElementById('regNoHP').value = '';
+        document.getElementById('regPassword').value = '';
+        document.getElementById('regConfirm').value = '';
+        document.getElementById('regRole').value = '';
+      }, 1000);
+    }
+
+    document.querySelectorAll('#regPassword, #regConfirm').forEach(el => {
+      el.addEventListener('keypress', e => { if (e.key === 'Enter') handleRegister(); });
+    });
+  </script>
+</body>
+</html>
