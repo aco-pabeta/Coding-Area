@@ -1,3 +1,6 @@
+// ===== LUCIDE ICONS INIT =====
+document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons()});
+
 // ===== DATA =====
 const servisData = [
   {id:'INV-0048',pelanggan:'Rina Sari',hp:'iPhone 14 Pro',imei:'123456789012345',kerusakan:'Layar Retak',teknisi:'Kurniawan',tanggal:'02/09/2026',status:'dikerjakan',biaya:1850000,catatan:'Layar retak parah, perlu ganti total'},
@@ -15,47 +18,47 @@ const servisData = [
 ];
 
 const pelangganData = [
-  {nama:'Rina Sari',noHP:'081234567890',servis:3,color:'#6c5ce7',riwayat:[
+  {nama:'Rina Sari',noHP:'081234567890',servis:3,color:'#3B82F6',riwayat:[
     {hp:'iPhone 14 Pro',kerusakan:'Layar Retak',masuk:'02/09/2026',selesai:'-',status:'dikerjakan'},
     {hp:'iPhone 13',kerusakan:'Baterai Drop',masuk:'15/07/2026',selesai:'17/07/2026',status:'selesai'},
     {hp:'iPhone 12',kerusakan:'Charging Port',masuk:'20/05/2026',selesai:'21/05/2026',status:'diambil'},
   ]},
-  {nama:'Budi Santoso',noHP:'085678901234',servis:2,color:'#00b894',riwayat:[
+  {nama:'Budi Santoso',noHP:'085678901234',servis:2,color:'#059669',riwayat:[
     {hp:'Samsung A54',kerusakan:'Baterai Kembung',masuk:'02/09/2026',selesai:'-',status:'menunggu'},
     {hp:'Samsung A34',kerusakan:'Layar Retak',masuk:'10/06/2026',selesai:'12/06/2026',status:'diambil'},
   ]},
-  {nama:'Dewi Lestari',noHP:'087890123456',servis:1,color:'#fd7e14',riwayat:[
+  {nama:'Dewi Lestari',noHP:'087890123456',servis:1,color:'#D97706',riwayat:[
     {hp:'Redmi Note 12',kerusakan:'Charging Port Rusak',masuk:'01/09/2026',selesai:'-',status:'sparepart'},
   ]},
-  {nama:'Andi Pratama',noHP:'083456789012',servis:4,color:'#e74c3c',riwayat:[
+  {nama:'Andi Pratama',noHP:'083456789012',servis:4,color:'#DC2626',riwayat:[
     {hp:'OPPO Reno 8',kerusakan:'Sinyal Hilang',masuk:'01/09/2026',selesai:'01/09/2026',status:'selesai'},
     {hp:'OPPO A78',kerusakan:'Layar Bergaris',masuk:'15/07/2026',selesai:'16/07/2026',status:'diambil'},
     {hp:'OPPO Reno 7',kerusakan:'Baterai',masuk:'20/04/2026',selesai:'21/04/2026',status:'selesai'},
     {hp:'OPPO A57',kerusakan:'Speaker',masuk:'10/03/2026',selesai:'11/03/2026',status:'diambil'},
   ]},
-  {nama:'Sari Melati',noHP:'089012345678',servis:2,color:'#a855f7',riwayat:[
+  {nama:'Sari Melati',noHP:'089012345678',servis:2,color:'#7C3AED',riwayat:[
     {hp:'Vivo Y36',kerusakan:'Tombol Power Mati',masuk:'31/08/2026',selesai:'01/09/2026',status:'diambil'},
     {hp:'Vivo Y22',kerusakan:'LCD Blank',masuk:'12/06/2026',selesai:'14/06/2026',status:'selesai'},
   ]},
-  {nama:'Rudi Hartono',noHP:'082345678901',servis:1,color:'#0984e3',riwayat:[
+  {nama:'Rudi Hartono',noHP:'082345678901',servis:1,color:'#0891B2',riwayat:[
     {hp:'iPhone 13',kerusakan:'Baterai Drop',masuk:'31/08/2026',selesai:'01/09/2026',status:'selesai'},
   ]},
 ];
 
 const sparepartData = [
-  {nama:'LCD iPhone 14 Pro',sku:'LCD-IP14P',stok:5,harga:1850000,kategori:'Layar',icon:'📱'},
-  {nama:'LCD iPhone 13',sku:'LCD-IP13',stok:8,harga:950000,kategori:'Layar',icon:'📱'},
-  {nama:'Baterai Samsung A54',sku:'BAT-SA54',stok:12,harga:180000,kategori:'Baterai',icon:'🔋'},
-  {nama:'Baterai iPhone 13',sku:'BAT-IP13',stok:3,harga:350000,kategori:'Baterai',icon:'🔋'},
-  {nama:'Charging Port Redmi Note 12',sku:'CHG-RMN12',stok:2,harga:85000,kategori:'Charging',icon:'🔌'},
-  {nama:'Kamera Belakang OPPO A78',sku:'CAM-OPA78',stok:0,harga:250000,kategori:'Kamera',icon:'📷'},
-  {nama:'Tombol Power Vivo Y36',sku:'BTN-VY36',stok:15,harga:25000,kategori:'Lainnya',icon:'🔘'},
-  {nama:'Speaker iPhone 12',sku:'SPK-IP12',stok:4,harga:120000,kategori:'Lainnya',icon:'🔊'},
-  {nama:'LCD Samsung A34',sku:'LCD-SA34',stok:1,harga:650000,kategori:'Layar',icon:'📱'},
-  {nama:'Face ID Module iPhone 12',sku:'FID-IP12',stok:0,harga:800000,kategori:'Sensor',icon:'🔍'},
-  {nama:'Layar Xiaomi 13',sku:'LCD-XM13',stok:6,harga:1200000,kategori:'Layar',icon:'📱'},
-  {nama:'Vibrator Motor Realme C55',sku:'VIB-RC55',stok:7,harga:45000,kategori:'Lainnya',icon:'📳'},
-  {nama:'Kabel Flex Samsung A14',sku:'FLX-SA14',stok:0,harga:55000,kategori:'Lainnya',icon:'🔧'},
+  {nama:'LCD iPhone 14 Pro',sku:'LCD-IP14P',stok:5,harga:1850000,kategori:'Layar'},
+  {nama:'LCD iPhone 13',sku:'LCD-IP13',stok:8,harga:950000,kategori:'Layar'},
+  {nama:'Baterai Samsung A54',sku:'BAT-SA54',stok:12,harga:180000,kategori:'Baterai'},
+  {nama:'Baterai iPhone 13',sku:'BAT-IP13',stok:3,harga:350000,kategori:'Baterai'},
+  {nama:'Charging Port Redmi Note 12',sku:'CHG-RMN12',stok:2,harga:85000,kategori:'Charging'},
+  {nama:'Kamera Belakang OPPO A78',sku:'CAM-OPA78',stok:0,harga:250000,kategori:'Kamera'},
+  {nama:'Tombol Power Vivo Y36',sku:'BTN-VY36',stok:15,harga:25000,kategori:'Lainnya'},
+  {nama:'Speaker iPhone 12',sku:'SPK-IP12',stok:4,harga:120000,kategori:'Lainnya'},
+  {nama:'LCD Samsung A34',sku:'LCD-SA34',stok:1,harga:650000,kategori:'Layar'},
+  {nama:'Face ID Module iPhone 12',sku:'FID-IP12',stok:0,harga:800000,kategori:'Sensor'},
+  {nama:'Layar Xiaomi 13',sku:'LCD-XM13',stok:6,harga:1200000,kategori:'Layar'},
+  {nama:'Vibrator Motor Realme C55',sku:'VIB-RC55',stok:7,harga:45000,kategori:'Lainnya'},
+  {nama:'Kabel Flex Samsung A14',sku:'FLX-SA14',stok:0,harga:55000,kategori:'Lainnya'},
 ];
 
 const statusBadge = {
@@ -68,16 +71,16 @@ const statusLabel = {
 };
 
 // ===== NAVIGATION =====
-function showPage(name){
+function showPage(name,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-
+  if(el)el.classList.add('active');
+  lucide.createIcons();
 }
 
 // ===== MODAL =====
-function openModal(id){document.getElementById(id).classList.add('show')}
+function openModal(id){document.getElementById(id).classList.add('show');lucide.createIcons()}
 function closeModal(id){document.getElementById(id).classList.remove('show')}
 document.querySelectorAll('.modal-overlay').forEach(m=>{
   m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')});
@@ -90,7 +93,7 @@ function renderServis(data){
     <tr onclick="showServiceDetail('${s.id}')" style="cursor:pointer">
       <td><strong>#${s.id}</strong></td>
       <td>${s.pelanggan}</td>
-      <td>${s.hp}<br><span style="font-size:11px;color:var(--text-lighter)">${s.imei}</span></td>
+      <td>${s.hp}<br><span style="font-size:10px;color:var(--text-tertiary)">${s.imei}</span></td>
       <td>${s.kerusakan}</td>
       <td>${s.teknisi}</td>
       <td>${s.tanggal}</td>
@@ -136,17 +139,17 @@ function showServiceDetail(id){
     </div>
     <div class="detail-section">
       <h4>Catatan</h4>
-      <p style="font-size:13px;color:var(--text-light);line-height:1.6">${s.catatan}</p>
+      <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.6">${s.catatan}</p>
     </div>
     <div class="detail-section">
       <h4>Riwayat Status</h4>
       <div class="detail-timeline">
         <div class="timeline-item"><div class="timeline-dot" style="background:var(--primary)"></div><div class="timeline-content"><strong>Diterima</strong><div class="time">${s.tanggal}</div></div></div>
-        ${s.status!=='menunggu'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--blue)"></div><div class="timeline-content"><strong>Diagnosa</strong><div class="time">Dalam proses</div></div></div>`:''}
-        ${s.status==='sparepart'||s.status==='dikerjakan'||s.status==='selesai'||s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--purple)"></div><div class="timeline-content"><strong>Menunggu Sparepart</strong><div class="time">Sparepart dipesan</div></div></div>`:''}
-        ${s.status==='dikerjakan'||s.status==='selesai'||s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--orange)"></div><div class="timeline-content"><strong>Sedang Dikerjakan</strong><div class="time">Proses perbaikan</div></div></div>`:''}
-        ${s.status==='selesai'||s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--green)"></div><div class="timeline-content"><strong>Selesai</strong><div class="time">Siap diambil</div></div></div>`:''}
-        ${s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--black)"></div><div class="timeline-content"><strong>Diambil</strong><div class="time">Pelanggan sudah mengambil</div></div></div>`:''}
+        ${s.status!=='menunggu'?`<div class="timeline-item"><div class="timeline-dot" style="background:#0EA5E9"></div><div class="timeline-content"><strong>Diagnosa</strong><div class="time">Dalam proses</div></div></div>`:''}
+        ${s.status==='sparepart'||s.status==='dikerjakan'||s.status==='selesai'||s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:#7C3AED"></div><div class="timeline-content"><strong>Menunggu Sparepart</strong><div class="time">Sparepart dipesan</div></div></div>`:''}
+        ${s.status==='dikerjakan'||s.status==='selesai'||s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:#EA580C"></div><div class="timeline-content"><strong>Sedang Dikerjakan</strong><div class="time">Proses perbaikan</div></div></div>`:''}
+        ${s.status==='selesai'||s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:#059669"></div><div class="timeline-content"><strong>Selesai</strong><div class="time">Siap diambil</div></div></div>`:''}
+        ${s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:#334155"></div><div class="timeline-content"><strong>Diambil</strong><div class="time">Pelanggan sudah mengambil</div></div></div>`:''}
       </div>
     </div>
   `;
@@ -162,8 +165,8 @@ function renderPelanggan(data){
         <div class="profile-avatar" style="background:${p.color}">${p.nama.split(' ').map(n=>n[0]).join('')}</div>
         <div>
           <div class="profile-name">${p.nama}</div>
-          <div class="profile-phone">📱 ${p.noHP}</div>
-          <div class="profile-count">${p.servis}x servis di tempat kami</div>
+          <div class="profile-phone"><i data-lucide="phone"></i> ${p.noHP}</div>
+          <div class="profile-count"><i data-lucide="repeat"></i> ${p.servis}x servis di tempat kami</div>
         </div>
       </div>
       <div class="profile-history">
@@ -172,7 +175,7 @@ function renderPelanggan(data){
             <div class="history-info">
               <div class="hp-name">${r.hp}</div>
               <div class="kerusakan">${r.kerusakan}</div>
-              <div class="tanggal">Masuk: ${r.masuk} ${r.selesai!=='-'?'&bull; Selesai: '+r.selesai:''}</div>
+              <div class="tanggal"><i data-lucide="calendar"></i> ${r.masuk} ${r.selesai!=='-'?'&bull; Selesai: '+r.selesai:''}</div>
             </div>
             <span class="badge ${statusBadge[r.status]}">${statusLabel[r.status]}</span>
           </div>
@@ -180,6 +183,7 @@ function renderPelanggan(data){
       </div>
     </div>
   `).join('');
+  lucide.createIcons();
 }
 
 document.getElementById('searchPelanggan').addEventListener('input',function(){
@@ -190,31 +194,33 @@ document.getElementById('searchPelanggan').addEventListener('input',function(){
 // ===== RENDER SPAREPART =====
 function renderSparepart(data){
   const tbody=document.getElementById('sparepartTableBody');
+  const iconMap={Layar:'smartphone',Baterai:'battery-charging',Charging:'plug',Kamera:'camera',Sensor:'scan',Lainnya:'more-horizontal'};
   tbody.innerHTML=data.map(s=>{
     let stockStyle='';
-    if(s.stok===0)stockStyle='color:var(--red);font-weight:700';
-    else if(s.stok<=3)stockStyle='color:var(--orange);font-weight:600';
+    if(s.stok===0)stockStyle='color:#DC2626;font-weight:700';
+    else if(s.stok<=3)stockStyle='color:#D97706;font-weight:600';
     return `
     <tr>
-      <td><div class="product-img">${s.icon}</div></td>
-      <td><strong>${s.nama}</strong><br><span style="font-size:11px;color:var(--text-lighter)">${s.kategori}</span></td>
-      <td><span style="font-family:monospace;font-size:12px">${s.sku}</span></td>
+      <td style="display:flex;align-items:center;gap:10px">
+        <div class="product-img"><i data-lucide="${iconMap[s.kategori]||'box'}"></i></div>
+        <div><strong>${s.nama}</strong><br><span style="font-size:10px;color:var(--text-tertiary)">${s.kategori}</span></div>
+      </td>
+      <td><span style="font-family:monospace;font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px">${s.sku}</span></td>
       <td><span style="${stockStyle}">${s.stok} pcs</span></td>
       <td><strong>Rp ${s.harga.toLocaleString('id-ID')}</strong></td>
       <td>
-        <button class="filter-btn" style="padding:5px 10px;font-size:11px" onclick="event.stopPropagation()">✏️</button>
-        <button class="filter-btn" style="padding:5px 10px;font-size:11px;color:var(--red)" onclick="event.stopPropagation()">🗑️</button>
+        <button class="filter-btn" style="padding:4px 8px;font-size:11px" onclick="event.stopPropagation()"><i data-lucide="pencil" style="width:12px;height:12px"></i></button>
+        <button class="filter-btn" style="padding:4px 8px;font-size:11px;color:#DC2626;border-color:#FEE2E2" onclick="event.stopPropagation()"><i data-lucide="trash-2" style="width:12px;height:12px"></i></button>
       </td>
     </tr>
   `}).join('');
+  lucide.createIcons();
 }
 
 document.getElementById('searchSparepart').addEventListener('input',function(){
   const q=this.value.toLowerCase();
   renderSparepart(sparepartData.filter(s=>s.nama.toLowerCase().includes(q)||s.sku.toLowerCase().includes(q)));
 });
-
-
 
 // ===== INIT =====
 renderServis(servisData);
