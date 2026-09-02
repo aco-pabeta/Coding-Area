@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServiceHub - Manajemen Servis HP</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#f5f6fa;--card:#fff;--sidebar:#1a1d29;--sidebar-hover:#2d3148;
+--primary:#6c5ce7;--primary-light:#a29bfe;
+--text:#2d3436;--text-light:#636e72;--text-lighter:#b2bec3;
+--border:#e9ecef;--shadow:0 1px 3px rgba(0,0,0,0.04);
+--radius:16px;--radius-sm:10px;
+--yellow:#ffc107;--blue:#4facfe;--purple:#a855f7;--orange:#fd7e14;--green:#00b894;--black:#2d3436;--red:#e74c3c;
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:240px;background:var(--sidebar);color:#fff;padding:24px 16px;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100}
+.sidebar .logo{display:flex;align-items:center;gap:12px;padding:0 8px 32px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:8px}
+.sidebar .logo .icon{width:36px;height:36px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.sidebar .logo h2{font-size:16px;font-weight:700;letter-spacing:-0.3px}
+.sidebar .logo span{font-size:11px;color:var(--text-lighter);display:block;margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;color:rgba(255,255,255,0.55);font-size:13.5px;font-weight:500;margin-bottom:2px}
+.nav-item:hover{background:var(--sidebar-hover);color:#fff}
+.nav-item.active{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(108,92,231,0.35)}
+.nav-item .nav-icon{width:20px;text-align:center;font-size:15px}
+.sidebar-footer{margin-top:auto;padding:16px 8px 0;border-top:1px solid rgba(255,255,255,0.08)}
+.sidebar-footer .user{display:flex;align-items:center;gap:10px}
+.sidebar-footer .avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.sidebar-footer .user-info{font-size:12.5px;line-height:1.4}
+.sidebar-footer .user-info .name{font-weight:600;color:#fff}
+.sidebar-footer .user-info .role{color:var(--text-lighter);font-size:11px}
+
+/* MAIN */
+.main{margin-left:240px;flex:1;padding:28px 32px;min-height:100vh}
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:28px}
+.page-header h1{font-size:22px;font-weight:700;letter-spacing:-0.5px}
+.page-header p{color:var(--text-light);font-size:13.5px;margin-top:4px}
+
+/* CARDS */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.summary-card{background:var(--card);border-radius:var(--radius);padding:22px 20px;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .2s}
+.summary-card:hover{transform:translateY(-2px)}
+.summary-card .card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px}
+.summary-card .card-value{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1}
+.summary-card .card-label{font-size:12.5px;color:var(--text-light);margin-top:6px}
+.summary-card .card-change{font-size:11.5px;margin-top:8px;display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-weight:600}
+.card-change.up{background:#d4edda;color:#155724}
+.card-change.down{background:#f8d7da;color:#721c24}
+
+/* SECTION */
+.section-title{font-size:15px;font-weight:700;margin-bottom:16px;letter-spacing:-0.3px}
+.recent-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+
+/* TABLE */
+.table-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.table-toolbar{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.search-box{position:relative;flex:1;min-width:200px}
+.search-box input{width:100%;padding:9px 14px 9px 36px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;transition:border .2s;background:var(--bg)}
+.search-box input:focus{border-color:var(--primary)}
+.search-box .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-lighter);font-size:14px}
+.filter-btn{padding:8px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);font-size:12.5px;cursor:pointer;transition:all .2s;color:var(--text-light);font-weight:500}
+.filter-btn:hover,.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary{padding:9px 20px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-primary:hover{background:#5a4bd1;transform:translateY(-1px)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:12px 20px;font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-lighter);font-weight:600;background:var(--bg);border-bottom:1px solid var(--border)}
+td{padding:14px 20px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8f9fd}
+.badge{padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:600;display:inline-block}
+.badge-yellow{background:#fff3cd;color:#856404}
+.badge-blue{background:#d1ecf1;color:#0c5460}
+.badge-purple{background:#e8daef;color:#6c3483}
+.badge-orange{background:#fde8d0;color:#a0522d}
+.badge-green{background:#d4edda;color:#155724}
+.badge-black{background:#d5d8dc;color:#2c3e50}
+.badge-red{background:#f8d7da;color:#721c24}
+
+/* PROFILE CARD */
+.customer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
+.profile-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;transition:transform .2s}
+.profile-card:hover{transform:translateY(-3px)}
+.profile-card .profile-header{padding:24px 20px 16px;display:flex;align-items:center;gap:14px}
+.profile-card .profile-avatar{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff}
+.profile-card .profile-name{font-size:15px;font-weight:700}
+.profile-card .profile-phone{font-size:12.5px;color:var(--text-light);margin-top:2px}
+.profile-card .profile-count{font-size:11.5px;color:var(--primary);font-weight:600;margin-top:4px}
+.profile-card .profile-history{padding:0 20px 20px}
+.profile-card .history-item{padding:10px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.profile-card .history-item:last-child{border-bottom:none}
+.history-info .hp-name{font-size:12.5px;font-weight:600}
+.history-info .kerusakan{font-size:11.5px;color:var(--text-light);margin-top:2px}
+.history-info .tanggal{font-size:10.5px;color:var(--text-lighter);margin-top:3px}
+
+/* SPAREPART */
+.stock-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.stock-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stock-card .stock-value{font-size:26px;font-weight:700;letter-spacing:-0.5px}
+.stock-card .stock-label{font-size:12.5px;color:var(--text-light);margin-top:4px}
+.stock-card.warn .stock-value{color:var(--orange)}
+.stock-card.danger .stock-value{color:var(--red)}
+.product-img{width:36px;height:36px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px}
+
+/* KEUANGAN */
+.fin-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.fin-card{background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.fin-card .fin-value{font-size:24px;font-weight:700;letter-spacing:-0.5px}
+.fin-card .fin-label{font-size:12.5px;color:var(--text-light);margin-top:4px}
+.fin-card .fin-change{font-size:11.5px;margin-top:8px;display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-weight:600}
+.chart-container{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:20px}
+
+
+/* LAPORAN */
+.report-controls{display:flex;gap:12px;margin-bottom:24px;align-items:center;flex-wrap:wrap}
+.report-select{padding:9px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;background:var(--card);cursor:pointer}
+.report-select:focus{border-color:var(--primary)}
+.report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.report-card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.report-card h3{font-size:15px;font-weight:700;margin-bottom:16px}
+.report-stat{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.report-stat:last-child{border-bottom:none}
+.report-stat .label{color:var(--text-light)}
+.report-stat .value{font-weight:700}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);width:520px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-size:16px;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:var(--bg);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:#e9ecef}
+.modal-body{padding:24px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;color:var(--text-light)}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;transition:border .2s;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.btn-cancel{padding:9px 20px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);font-size:13px;cursor:pointer;font-weight:500;transition:all .2s}
+.btn-cancel:hover{background:var(--bg)}
+
+/* DETAIL MODAL */
+.detail-header{display:flex;gap:16px;align-items:flex-start;margin-bottom:20px}
+.detail-avatar{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:700}
+.detail-info h2{font-size:18px;font-weight:700}
+.detail-info .detail-meta{font-size:12.5px;color:var(--text-light);margin-top:4px}
+.detail-section{margin-top:20px}
+.detail-section h4{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px}
+.detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.detail-row .dlabel{color:var(--text-light)}
+.detail-row .dvalue{font-weight:600}
+.detail-timeline{margin-top:16px}
+.timeline-item{display:flex;gap:12px;padding:10px 0;position:relative}
+.timeline-dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.timeline-content{font-size:12.5px}
+.timeline-content .time{color:var(--text-lighter);font-size:11px;margin-top:2px}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+.sidebar{width:200px}
+.main{margin-left:200px;padding:20px}
+.summary-grid{grid-template-columns:repeat(2,1fr)}
+.recent-grid{grid-template-columns:1fr}
+.report-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+.sidebar{display:none}
+.main{margin-left:0;padding:16px}
+.summary-grid{grid-template-columns:1fr 1fr}
+.customer-grid{grid-template-columns:1fr}
+.stock-summary{grid-template-columns:1fr}
+.fin-summary{grid-template-columns:1fr}
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page.active{animation:fadeIn .3s ease}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="icon">📱</div>
+    <div>
+      <h2>ServiceHub</h2>
+      <span>Manajemen Servis HP</span>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="nav-icon">🏠</span>Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('servis')">
+      <span class="nav-icon">🔧</span>Data Servis
+    </div>
+    <div class="nav-item" onclick="showPage('pelanggan')">
+      <span class="nav-icon">👥</span>Pelanggan
+    </div>
+    <div class="nav-item" onclick="showPage('sparepart')">
+      <span class="nav-icon">📦</span>Sparepart
+    </div>
+    <div class="nav-item" onclick="showPage('keuangan')">
+      <span class="nav-icon">💰</span>Keuangan
+    </div>
+    <div class="nav-item" onclick="showPage('laporan')">
+      <span class="nav-icon">📊</span>Laporan
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user">
+      <div class="avatar">TK</div>
+      <div class="user-info">
+        <div class="name">Teknisi Kurniawan</div>
+        <div class="role">Admin Utama</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- ========== DASHBOARD ========== -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-header">
+      <h1>Selamat Datang Kembali 👋</h1>
+      <p>Berikut ringkasan aktivitas servis hari ini</p>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="card-icon" style="background:#ede7f6;color:var(--primary)">📋</div>
+        <div class="card-value">48</div>
+        <div class="card-label">Total Servis</div>
+        <span class="card-change up">↑ 12% dari bulan lalu</span>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon" style="background:#fff3cd;color:#856404">⏳</div>
+        <div class="card-value">12</div>
+        <div class="card-label">Menunggu</div>
+        <span class="card-change down">↑ 3 hari ini</span>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon" style="background:#fde8d0;color:var(--orange)">🔨</div>
+        <div class="card-value">18</div>
+        <div class="card-label">Dikerjakan</div>
+        <span class="card-change up">↑ 5 hari ini</span>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon" style="background:#d4edda;color:#155724">✅</div>
+        <div class="card-value">15</div>
+        <div class="card-label">Selesai</div>
+        <span class="card-change up">↑ 8 minggu ini</span>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="card-icon" style="background:#e8f5e9;color:#2e7d32">📈</div>
+        <div class="card-value">48</div>
+        <div class="card-label">Statistik Servis Bulan Ini</div>
+      </div>
+      <div class="summary-card" style="grid-column:span 3">
+        <div class="card-icon" style="background:#e3f2fd;color:#1565c0">💵</div>
+        <div class="card-value">Rp 8.450.000</div>
+        <div class="card-label">Total Pendapatan Bulan Ini</div>
+        <span class="card-change up">↑ 18% dari bulan lalu</span>
+      </div>
+    </div>
+
+    <div class="recent-grid">
+      <div>
+        <div class="section-title">Servisan Terbaru</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Invoice</th>
+                <th>Pelanggan</th>
+                <th>HP</th>
+                <th>Kerusakan</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>#INV-0048</strong></td>
+                <td>Rina Sari</td>
+                <td>iPhone 14 Pro</td>
+                <td>Layar Retak</td>
+                <td><span class="badge badge-orange">Dikerjakan</span></td>
+              </tr>
+              <tr>
+                <td><strong>#INV-0047</strong></td>
+                <td>Budi Santoso</td>
+                <td>Samsung A54</td>
+                <td>Baterai Kembung</td>
+                <td><span class="badge badge-yellow">Menunggu</span></td>
+              </tr>
+              <tr>
+                <td><strong>#INV-0046</strong></td>
+                <td>Dewi Lestari</td>
+                <td>Redmi Note 12</td>
+                <td>Charging Port</td>
+                <td><span class="badge badge-purple">Menunggu Sparepart</span></td>
+              </tr>
+              <tr>
+                <td><strong>#INV-0045</strong></td>
+                <td>Andi Pratama</td>
+                <td>OPPO Reno 8</td>
+                <td>Sinyal Hilang</td>
+                <td><span class="badge badge-green">Selesai</span></td>
+              </tr>
+              <tr>
+                <td><strong>#INV-0044</strong></td>
+                <td>Sari Melati</td>
+                <td>Vivo Y36</td>
+                <td>Tombol Power</td>
+                <td><span class="badge badge-black">Diambil</span></td>
+              </tr>
+              <tr>
+                <td><strong>#INV-0043</strong></td>
+                <td>Rudi Hartono</td>
+                <td>iPhone 13</td>
+                <td>Baterai Drop</td>
+                <td><span class="badge badge-green">Selesai</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">Status Hari Ini</div>
+        <div class="table-wrap" style="padding:20px">
+          <div style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12.5px;color:var(--text-light)">Selesai</span>
+              <span style="font-size:12.5px;font-weight:700">5 unit</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="width:60%;height:100%;background:var(--green);border-radius:3px"></div>
+            </div>
+          </div>
+          <div style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12.5px;color:var(--text-light)">Dikerjakan</span>
+              <span style="font-size:12.5px;font-weight:700">3 unit</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="width:36%;height:100%;background:var(--orange);border-radius:3px"></div>
+            </div>
+          </div>
+          <div style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12.5px;color:var(--text-light)">Menunggu</span>
+              <span style="font-size:12.5px;font-weight:700">2 unit</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="width:24%;height:100%;background:var(--yellow);border-radius:3px"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12.5px;color:var(--text-light)">Batal</span>
+              <span style="font-size:12.5px;font-weight:700">0 unit</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="width:0%;height:100%;background:var(--red);border-radius:3px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== DATA SERVIS ========== -->
+  <div id="page-servis" class="page">
+    <div class="page-header">
+      <h1>Data Servis</h1>
+      <p>Kelola semua data servis dalam satu tempat</p>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Cari invoice, pelanggan, IMEI..." id="searchServis">
+        </div>
+        <button class="filter-btn active" onclick="filterStatus(this,'all')">Semua Status</button>
+        <button class="filter-btn" onclick="filterStatus(this,'menunggu')">Menunggu</button>
+        <button class="filter-btn" onclick="filterStatus(this,'diagnosa')">Diagnosa</button>
+        <button class="filter-btn" onclick="filterStatus(this,'dikerjakan')">Dikerjakan</button>
+        <button class="filter-btn" onclick="filterStatus(this,'selesai')">Selesai</button>
+        <select class="filter-btn" style="min-width:120px">
+          <option>Semua Teknisi</option>
+          <option>Kurniawan</option>
+          <option>Andi</option>
+          <option>Rudi</option>
+        </select>
+        <select class="filter-btn" style="min-width:120px">
+          <option>Semua Bulan</option>
+          <option>September 2026</option>
+          <option>Agustus 2026</option>
+          <option>Juli 2026</option>
+        </select>
+        <button class="btn-primary" onclick="openModal('addServiceModal')">+ Servis</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Invoice</th>
+            <th>Pelanggan</th>
+            <th>HP / IMEI</th>
+            <th>Kerusakan</th>
+            <th>Teknisi</th>
+            <th>Tanggal</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="servisTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== PELANGGAN ========== -->
+  <div id="page-pelanggan" class="page">
+    <div class="page-header">
+      <h1>Pelanggan</h1>
+      <p>Profil dan riwayat servis setiap pelanggan</p>
+    </div>
+
+    <div class="table-toolbar" style="background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:20px">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Cari nama pelanggan, no HP..." id="searchPelanggan">
+      </div>
+      <button class="btn-primary" onclick="openModal('addCustomerModal')">+ Pelanggan</button>
+    </div>
+
+    <div class="customer-grid" id="customerGrid">
+    </div>
+  </div>
+
+  <!-- ========== SPAREPART ========== -->
+  <div id="page-sparepart" class="page">
+    <div class="page-header">
+      <h1>Inventory Sparepart</h1>
+      <p>Monitor stok dan kelola sparepart</p>
+    </div>
+
+    <div class="stock-summary">
+      <div class="stock-card">
+        <div class="stock-value">156</div>
+        <div class="stock-label">Total Item</div>
+      </div>
+      <div class="stock-card warn">
+        <div class="stock-value">12</div>
+        <div class="stock-label">Stok Menipis</div>
+      </div>
+      <div class="stock-card danger">
+        <div class="stock-value">3</div>
+        <div class="stock-label">Stok Habis</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Cari sparepart..." id="searchSparepart">
+        </div>
+        <button class="btn-primary" onclick="openModal('addSparepartModal')">+ Sparepart</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Foto</th>
+            <th>Nama</th>
+            <th>SKU</th>
+            <th>Stok</th>
+            <th>Harga</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="sparepartTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== KEUANGAN ========== -->
+  <div id="page-keuangan" class="page">
+    <div class="page-header">
+      <h1>Keuangan</h1>
+      <p>Ringkasan pendapatan dan transaksi</p>
+    </div>
+
+    <div class="fin-summary">
+      <div class="fin-card">
+        <div class="fin-value">Rp 8.450.000</div>
+        <div class="fin-label">Total Pendapatan</div>
+        <span class="fin-change up" style="background:#d4edda;color:#155724">↑ 18% dari bulan lalu</span>
+      </div>
+      <div class="fin-card">
+        <div class="fin-value">Rp 7.150.000</div>
+        <div class="fin-label">Pendapatan Bulan Lalu</div>
+      </div>
+      <div class="fin-card">
+        <div class="fin-value">32</div>
+        <div class="fin-label">Total Transaksi</div>
+        <span class="fin-change up" style="background:#d4edda;color:#155724">↑ 5 dari bulan lalu</span>
+      </div>
+    </div>
+
+    <div class="chart-container" style="padding:20px">
+      <h3 style="font-size:14px;font-weight:700;margin-bottom:16px">Grafik Pendapatan</h3>
+      <div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding:0 4px">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text-lighter)">5.2jt</span>
+          <div style="width:100%;height:52px;background:var(--primary);opacity:0.3;border-radius:4px 4px 0 0"></div>
+          <span style="font-size:10px;color:var(--text-lighter)">Jan</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text-lighter)">4.8jt</span>
+          <div style="width:100%;height:48px;background:var(--primary);opacity:0.35;border-radius:4px 4px 0 0"></div>
+          <span style="font-size:10px;color:var(--text-lighter)">Feb</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text-lighter)">6.1jt</span>
+          <div style="width:100%;height:61px;background:var(--primary);opacity:0.45;border-radius:4px 4px 0 0"></div>
+          <span style="font-size:10px;color:var(--text-lighter)">Mar</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text-lighter)">7.3jt</span>
+          <div style="width:100%;height:73px;background:var(--primary);opacity:0.55;border-radius:4px 4px 0 0"></div>
+          <span style="font-size:10px;color:var(--text-lighter)">Apr</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text-lighter)">6.9jt</span>
+          <div style="width:100%;height:69px;background:var(--primary);opacity:0.5;border-radius:4px 4px 0 0"></div>
+          <span style="font-size:10px;color:var(--text-lighter)">Mei</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text-lighter)">7.8jt</span>
+          <div style="width:100%;height:78px;background:var(--primary);opacity:0.6;border-radius:4px 4px 0 0"></div>
+          <span style="font-size:10px;color:var(--text-lighter)">Jun</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text-lighter)">8.1jt</span>
+          <div style="width:100%;height:81px;background:var(--primary);opacity:0.7;border-radius:4px 4px 0 0"></div>
+          <span style="font-size:10px;color:var(--text-lighter)">Jul</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text-lighter)">7.1jt</span>
+          <div style="width:100%;height:71px;background:var(--primary);opacity:0.6;border-radius:4px 4px 0 0"></div>
+          <span style="font-size:10px;color:var(--text-lighter)">Agu</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--primary);font-weight:700">8.4jt</span>
+          <div style="width:100%;height:84px;background:var(--primary);border-radius:4px 4px 0 0"></div>
+          <span style="font-size:10px;color:var(--primary);font-weight:600">Sep</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+        <div class="section-title" style="margin:0">Transaksi Terbaru</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Invoice</th>
+            <th>Pelanggan</th>
+            <th>Layanan</th>
+            <th>Bayaran</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>02 Sep 2026</td>
+            <td><strong>#INV-0048</strong></td>
+            <td>Rina Sari</td>
+            <td>Ganti Layar iPhone 14 Pro</td>
+            <td><strong>Rp 1.850.000</strong></td>
+            <td><span class="badge badge-orange">Dikerjakan</span></td>
+          </tr>
+          <tr>
+            <td>01 Sep 2026</td>
+            <td><strong>#INV-0045</strong></td>
+            <td>Andi Pratama</td>
+            <td>Perbaikan Sinyal OPPO Reno 8</td>
+            <td><strong>Rp 350.000</strong></td>
+            <td><span class="badge badge-green">Selesai</span></td>
+          </tr>
+          <tr>
+            <td>01 Sep 2026</td>
+            <td><strong>#INV-0044</strong></td>
+            <td>Sari Melati</td>
+            <td>Ganti Tombol Power Vivo Y36</td>
+            <td><strong>Rp 150.000</strong></td>
+            <td><span class="badge badge-black">Diambil</span></td>
+          </tr>
+          <tr>
+            <td>31 Agu 2026</td>
+            <td><strong>#INV-0043</strong></td>
+            <td>Rudi Hartono</td>
+            <td>Ganti Baterai iPhone 13</td>
+            <td><strong>Rp 450.000</strong></td>
+            <td><span class="badge badge-green">Selesai</span></td>
+          </tr>
+          <tr>
+            <td>31 Agu 2026</td>
+            <td><strong>#INV-0042</strong></td>
+            <td>Lisa Permata</td>
+            <td>Ganti LCD Samsung A34</td>
+            <td><strong>Rp 650.000</strong></td>
+            <td><span class="badge badge-green">Selesai</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== LAPORAN ========== -->
+  <div id="page-laporan" class="page">
+    <div class="page-header">
+      <h1>Laporan</h1>
+      <p>Ringkasan performa bisnis servis HP</p>
+    </div>
+
+    <div class="report-controls">
+      <select class="report-select" id="reportMonth">
+        <option value="9">September</option>
+        <option value="8">Agustus</option>
+        <option value="7">Juli</option>
+        <option value="6">Juni</option>
+        <option value="5">Mei</option>
+        <option value="4">April</option>
+      </select>
+      <select class="report-select" id="reportYear">
+        <option value="2026">2026</option>
+        <option value="2025">2025</option>
+      </select>
+      <button class="btn-primary">📥 Export PDF</button>
+    </div>
+
+    <div class="summary-grid" style="margin-bottom:24px">
+      <div class="summary-card">
+        <div class="card-icon" style="background:#ede7f6;color:var(--primary)">📋</div>
+        <div class="card-value">48</div>
+        <div class="card-label">Total Servis</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon" style="background:#d4edda;color:#155724">✅</div>
+        <div class="card-value">35</div>
+        <div class="card-label">Berhasil Selesai</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon" style="background:#f8d7da;color:#721c24">❌</div>
+        <div class="card-value">3</div>
+        <div class="card-label">Dibatalkan</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon" style="background:#e3f2fd;color:#1565c0">💵</div>
+        <div class="card-value">Rp 8.450.000</div>
+        <div class="card-label">Total Pendapatan</div>
+      </div>
+    </div>
+
+    <div class="report-grid">
+      <div class="report-card">
+        <h3>Ringkasan Servis</h3>
+        <div class="report-stat">
+          <span class="label">Total Dikerjakan</span>
+          <span class="value">48 unit</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Selesai</span>
+          <span class="value">35 unit (73%)</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Masih Dikerjakan</span>
+          <span class="value">10 unit</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Dibatalkan</span>
+          <span class="value">3 unit</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Rata-rata Waktu Servis</span>
+          <span class="value">2.3 hari</span>
+        </div>
+      </div>
+      <div class="report-card">
+        <h3>Ringkasan Keuangan</h3>
+        <div class="report-stat">
+          <span class="label">Total Pendapatan</span>
+          <span class="value">Rp 8.450.000</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Biaya Sparepart</span>
+          <span class="value">Rp 3.200.000</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Laba Bersih</span>
+          <span class="value">Rp 5.250.000</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Pendapatan Rata-rata/Servis</span>
+          <span class="value">Rp 176.041</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Pelanggan Baru</span>
+          <span class="value">12 orang</span>
+        </div>
+      </div>
+      <div class="report-card">
+        <h3>Servis Terlaris</h3>
+        <div class="report-stat">
+          <span class="label">Ganti Layar</span>
+          <span class="value">14 unit</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Ganti Baterai</span>
+          <span class="value">11 unit</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Charging Port</span>
+          <span class="value">8 unit</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Perbaikan Software</span>
+          <span class="value">7 unit</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Lainnya</span>
+          <span class="value">8 unit</span>
+        </div>
+      </div>
+      <div class="report-card">
+        <h3>Top Teknisi</h3>
+        <div class="report-stat">
+          <span class="label">Kurniawan</span>
+          <span class="value">18 servis</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Andi</span>
+          <span class="value">15 servis</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Rudi</span>
+          <span class="value">15 servis</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Tingkat Kepuasan</span>
+          <span class="value">4.8 / 5.0</span>
+        </div>
+        <div class="report-stat">
+          <span class="label">Servis Selesai Tepat Waktu</span>
+          <span class="value">89%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: ADD SERVICE -->
+<div class="modal-overlay" id="addServiceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Tambah Servis Baru</h3>
+      <button class="modal-close" onclick="closeModal('addServiceModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Pelanggan</label>
+        <select>
+          <option>Pilih pelanggan...</option>
+          <option>Rina Sari</option>
+          <option>Budi Santoso</option>
+          <option>Dewi Lestari</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Jenis HP</label>
+          <input type="text" placeholder="iPhone 14 Pro">
+        </div>
+        <div class="form-group">
+          <label>IMEI</label>
+          <input type="text" placeholder="Masukkan IMEI">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Kerusakan</label>
+        <textarea rows="2" placeholder="Deskripsikan kerusakan..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Teknisi</label>
+          <select>
+            <option>Pilih teknisi...</option>
+            <option>Kurniawan</option>
+            <option>Andi</option>
+            <option>Rudi</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estimasi Biaya</label>
+          <input type="text" placeholder="Rp 0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Catatan</label>
+        <textarea rows="2" placeholder="Catatan tambahan..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('addServiceModal')">Batal</button>
+      <button class="btn-primary" onclick="closeModal('addServiceModal')">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SERVICE DETAIL -->
+<div class="modal-overlay" id="serviceDetailModal">
+  <div class="modal" style="width:560px">
+    <div class="modal-header">
+      <h3>Detail Servis</h3>
+      <button class="modal-close" onclick="closeModal('serviceDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="serviceDetailContent">
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD CUSTOMER -->
+<div class="modal-overlay" id="addCustomerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Tambah Pelanggan</h3>
+      <button class="modal-close" onclick="closeModal('addCustomerModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" placeholder="Nama pelanggan">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>No. HP</label>
+          <input type="text" placeholder="08xxxxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label>Email (opsional)</label>
+          <input type="email" placeholder="email@domain.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Alamat (opsional)</label>
+        <textarea rows="2" placeholder="Alamat lengkap..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('addCustomerModal')">Batal</button>
+      <button class="btn-primary" onclick="closeModal('addCustomerModal')">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD SPAREPART -->
+<div class="modal-overlay" id="addSparepartModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Tambah Sparepart</h3>
+      <button class="modal-close" onclick="closeModal('addSparepartModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nama Sparepart</label>
+        <input type="text" placeholder="LCD iPhone 14 Pro">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>SKU</label>
+          <input type="text" placeholder="SKU-XXXX">
+        </div>
+        <div class="form-group">
+          <label>Stok</label>
+          <input type="number" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Harga Beli</label>
+          <input type="text" placeholder="Rp 0">
+        </div>
+        <div class="form-group">
+          <label>Harga Jual</label>
+          <input type="text" placeholder="Rp 0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Kategori</label>
+        <select>
+          <option>Layar</option>
+          <option>Baterai</option>
+          <option>Charging</option>
+          <option>Kamera</option>
+          <option>Sensor</option>
+          <option>Lainnya</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('addSparepartModal')">Batal</button>
+      <button class="btn-primary" onclick="closeModal('addSparepartModal')">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const servisData = [
+  {id:'INV-0048',pelanggan:'Rina Sari',hp:'iPhone 14 Pro',imei:'123456789012345',kerusakan:'Layar Retak',teknisi:'Kurniawan',tanggal:'02/09/2026',status:'dikerjakan',biaya:1850000,catatan:'Layar retak parah, perlu ganti total'},
+  {id:'INV-0047',pelanggan:'Budi Santoso',hp:'Samsung A54',imei:'987654321098765',kerusakan:'Baterai Kembung',teknisi:'Andi',tanggal:'02/09/2026',status:'menunggu',biaya:350000,catatan:'Baterai sudah kembung, perlu ganti baru'},
+  {id:'INV-0046',pelanggan:'Dewi Lestari',hp:'Redmi Note 12',imei:'555666777888999',kerusakan:'Charging Port Rusak',teknisi:'Rudi',tanggal:'01/09/2026',status:'sparepart',biaya:250000,catatan:'Port charging longgar, menunggu sparepart masuk'},
+  {id:'INV-0045',pelanggan:'Andi Pratama',hp:'OPPO Reno 8',imei:'111222333444555',kerusakan:'Sinyal Hilang',teknisi:'Kurniawan',tanggal:'01/09/2026',status:'selesai',biaya:350000,catatan:'Modul sinyal sudah diganti, tested OK'},
+  {id:'INV-0044',pelanggan:'Sari Melati',hp:'Vivo Y36',imei:'666777888999000',kerusakan:'Tombol Power Mati',teknisi:'Andi',tanggal:'31/08/2026',status:'diambil',biaya:150000,catatan:'Tombol power sudah diganti, normal'},
+  {id:'INV-0043',pelanggan:'Rudi Hartono',hp:'iPhone 13',imei:'444555666777888',kerusakan:'Baterai Drop',teknisi:'Rudi',tanggal:'31/08/2026',status:'selesai',biaya:450000,catatan:'Baterai diganti, health 100%'},
+  {id:'INV-0042',pelanggan:'Lisa Permata',hp:'Samsung A34',imei:'222333444555666',kerusakan:'LCD Blank',teknisi:'Kurniawan',tanggal:'30/08/2026',status:'selesai',biaya:650000,catatan:'LCD diganti, tested normal'},
+  {id:'INV-0041',pelanggan:'Hendra Wijaya',hp:'OPPO A78',imei:'333444555666777',kerusakan:'Tembok Kamera Belakang',teknisi:'Andi',tanggal:'30/08/2026',status:'diagnosa',biaya:0,catatan:'Sedang dalam tahap diagnosa'},
+  {id:'INV-0040',pelanggan:'Maya Putri',hp:'iPhone 12',imei:'888999000111222',kerusakan:'Face ID Error',teknisi:'Rudi',tanggal:'29/08/2026',status:'selesai',biaya:800000,catatan:'Face ID sudah diperbaiki'},
+  {id:'INV-0039',pelanggan:'Dodi Kusuma',hp:'Samsung A14',imei:'999000111222333',kerusakan:'Vibrator Mati',teknisi:'Kurniawan',tanggal:'29/08/2026',status:'batal',biaya:0,catatan:'Pelanggan membatalkan servis'},
+  {id:'INV-0038',pelanggan:'Nina Sari',hp:'Xiaomi 13',imei:'777888999000111',kerusakan:'Layar Bergaris',teknisi:'Andi',tanggal:'28/08/2026',status:'selesai',biaya:1200000,catatan:'LCD diganti, kualitas original'},
+  {id:'INV-0037',pelanggan:'Tono Sugiarto',hp:'Realme C55',imei:'555111222333444',kerusakan:'Speaker Rusak',teknisi:'Rudi',tanggal:'28/08/2026',status:'diambil',biaya:200000,catatan:'Speaker sudah diganti'},
+];
+
+const pelangganData = [
+  {nama:'Rina Sari',noHP:'081234567890',servis:3,color:'#6c5ce7',riwayat:[
+    {hp:'iPhone 14 Pro',kerusakan:'Layar Retak',masuk:'02/09/2026',selesai:'-',status:'dikerjakan'},
+    {hp:'iPhone 13',kerusakan:'Baterai Drop',masuk:'15/07/2026',selesai:'17/07/2026',status:'selesai'},
+    {hp:'iPhone 12',kerusakan:'Charging Port',masuk:'20/05/2026',selesai:'21/05/2026',status:'diambil'},
+  ]},
+  {nama:'Budi Santoso',noHP:'085678901234',servis:2,color:'#00b894',riwayat:[
+    {hp:'Samsung A54',kerusakan:'Baterai Kembung',masuk:'02/09/2026',selesai:'-',status:'menunggu'},
+    {hp:'Samsung A34',kerusakan:'Layar Retak',masuk:'10/06/2026',selesai:'12/06/2026',status:'diambil'},
+  ]},
+  {nama:'Dewi Lestari',noHP:'087890123456',servis:1,color:'#fd7e14',riwayat:[
+    {hp:'Redmi Note 12',kerusakan:'Charging Port Rusak',masuk:'01/09/2026',selesai:'-',status:'sparepart'},
+  ]},
+  {nama:'Andi Pratama',noHP:'083456789012',servis:4,color:'#e74c3c',riwayat:[
+    {hp:'OPPO Reno 8',kerusakan:'Sinyal Hilang',masuk:'01/09/2026',selesai:'01/09/2026',status:'selesai'},
+    {hp:'OPPO A78',kerusakan:'Layar Bergaris',masuk:'15/07/2026',selesai:'16/07/2026',status:'diambil'},
+    {hp:'OPPO Reno 7',kerusakan:'Baterai',masuk:'20/04/2026',selesai:'21/04/2026',status:'selesai'},
+    {hp:'OPPO A57',kerusakan:'Speaker',masuk:'10/03/2026',selesai:'11/03/2026',status:'diambil'},
+  ]},
+  {nama:'Sari Melati',noHP:'089012345678',servis:2,color:'#a855f7',riwayat:[
+    {hp:'Vivo Y36',kerusakan:'Tombol Power Mati',masuk:'31/08/2026',selesai:'01/09/2026',status:'diambil'},
+    {hp:'Vivo Y22',kerusakan:'LCD Blank',masuk:'12/06/2026',selesai:'14/06/2026',status:'selesai'},
+  ]},
+  {nama:'Rudi Hartono',noHP:'082345678901',servis:1,color:'#0984e3',riwayat:[
+    {hp:'iPhone 13',kerusakan:'Baterai Drop',masuk:'31/08/2026',selesai:'01/09/2026',status:'selesai'},
+  ]},
+];
+
+const sparepartData = [
+  {nama:'LCD iPhone 14 Pro',sku:'LCD-IP14P',stok:5,harga:1850000,kategori:'Layar',icon:'📱'},
+  {nama:'LCD iPhone 13',sku:'LCD-IP13',stok:8,harga:950000,kategori:'Layar',icon:'📱'},
+  {nama:'Baterai Samsung A54',sku:'BAT-SA54',stok:12,harga:180000,kategori:'Baterai',icon:'🔋'},
+  {nama:'Baterai iPhone 13',sku:'BAT-IP13',stok:3,harga:350000,kategori:'Baterai',icon:'🔋'},
+  {nama:'Charging Port Redmi Note 12',sku:'CHG-RMN12',stok:2,harga:85000,kategori:'Charging',icon:'🔌'},
+  {nama:'Kamera Belakang OPPO A78',sku:'CAM-OPA78',stok:0,harga:250000,kategori:'Kamera',icon:'📷'},
+  {nama:'Tombol Power Vivo Y36',sku:'BTN-VY36',stok:15,harga:25000,kategori:'Lainnya',icon:'🔘'},
+  {nama:'Speaker iPhone 12',sku:'SPK-IP12',stok:4,harga:120000,kategori:'Lainnya',icon:'🔊'},
+  {nama:'LCD Samsung A34',sku:'LCD-SA34',stok:1,harga:650000,kategori:'Layar',icon:'📱'},
+  {nama:'Face ID Module iPhone 12',sku:'FID-IP12',stok:0,harga:800000,kategori:'Sensor',icon:'🔍'},
+  {nama:'Layar Xiaomi 13',sku:'LCD-XM13',stok:6,harga:1200000,kategori:'Layar',icon:'📱'},
+  {nama:'Vibrator Motor Realme C55',sku:'VIB-RC55',stok:7,harga:45000,kategori:'Lainnya',icon:'📳'},
+  {nama:'Kabel Flex Samsung A14',sku:'FLX-SA14',stok:0,harga:55000,kategori:'Lainnya',icon:'🔧'},
+];
+
+const statusBadge = {
+  menunggu:'badge-yellow',diagnosa:'badge-blue',sparepart:'badge-purple',
+  dikerjakan:'badge-orange',selesai:'badge-green',diambil:'badge-black',batal:'badge-red'
+};
+const statusLabel = {
+  menunggu:'Menunggu',diagnosa:'Diagnosa',sparepart:'Menunggu Sparepart',
+  dikerjakan:'Dikerjakan',selesai:'Selesai',diambil:'Diambil',batal:'Batal'
+};
+
+// ===== NAVIGATION =====
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+}
+
+// ===== MODAL =====
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')});
+});
+
+// ===== RENDER SERVIS TABLE =====
+function renderServis(data){
+  const tbody=document.getElementById('servisTableBody');
+  tbody.innerHTML=data.map(s=>`
+    <tr onclick="showServiceDetail('${s.id}')" style="cursor:pointer">
+      <td><strong>#${s.id}</strong></td>
+      <td>${s.pelanggan}</td>
+      <td>${s.hp}<br><span style="font-size:11px;color:var(--text-lighter)">${s.imei}</span></td>
+      <td>${s.kerusakan}</td>
+      <td>${s.teknisi}</td>
+      <td>${s.tanggal}</td>
+      <td><span class="badge ${statusBadge[s.status]}">${statusLabel[s.status]}</span></td>
+    </tr>
+  `).join('');
+}
+
+function filterStatus(btn,status){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(status==='all')renderServis(servisData);
+  else renderServis(servisData.filter(s=>s.status===status));
+}
+
+document.getElementById('searchServis').addEventListener('input',function(){
+  const q=this.value.toLowerCase();
+  renderServis(servisData.filter(s=>
+    s.id.toLowerCase().includes(q)||s.pelanggan.toLowerCase().includes(q)||s.hp.toLowerCase().includes(q)||s.imei.includes(q)
+  ));
+});
+
+// ===== SERVICE DETAIL =====
+function showServiceDetail(id){
+  const s=servisData.find(x=>x.id===id);
+  if(!s)return;
+  document.getElementById('serviceDetailContent').innerHTML=`
+    <div class="detail-header">
+      <div class="detail-avatar">${s.pelanggan.split(' ').map(n=>n[0]).join('')}</div>
+      <div class="detail-info">
+        <h2>${s.pelanggan}</h2>
+        <div class="detail-meta">${s.hp} &bull; ${s.imei}</div>
+        <div style="margin-top:8px"><span class="badge ${statusBadge[s.status]}">${statusLabel[s.status]}</span></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h4>Informasi Servis</h4>
+      <div class="detail-row"><span class="dlabel">Invoice</span><span class="dvalue">#${s.id}</span></div>
+      <div class="detail-row"><span class="dlabel">Kerusakan</span><span class="dvalue">${s.kerusakan}</span></div>
+      <div class="detail-row"><span class="dlabel">Teknisi</span><span class="dvalue">${s.teknisi}</span></div>
+      <div class="detail-row"><span class="dlabel">Tanggal Masuk</span><span class="dvalue">${s.tanggal}</span></div>
+      <div class="detail-row"><span class="dlabel">Estimasi Biaya</span><span class="dvalue">${s.biaya?'Rp '+s.biaya.toLocaleString('id-ID'):'Dalam diagnosa'}</span></div>
+    </div>
+    <div class="detail-section">
+      <h4>Catatan</h4>
+      <p style="font-size:13px;color:var(--text-light);line-height:1.6">${s.catatan}</p>
+    </div>
+    <div class="detail-section">
+      <h4>Riwayat Status</h4>
+      <div class="detail-timeline">
+        <div class="timeline-item"><div class="timeline-dot" style="background:var(--primary)"></div><div class="timeline-content"><strong>Diterima</strong><div class="time">${s.tanggal}</div></div></div>
+        ${s.status!=='menunggu'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--blue)"></div><div class="timeline-content"><strong>Diagnosa</strong><div class="time">Dalam proses</div></div></div>`:''}
+        ${s.status==='sparepart'||s.status==='dikerjakan'||s.status==='selesai'||s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--purple)"></div><div class="timeline-content"><strong>Menunggu Sparepart</strong><div class="time">Sparepart dipesan</div></div></div>`:''}
+        ${s.status==='dikerjakan'||s.status==='selesai'||s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--orange)"></div><div class="timeline-content"><strong>Sedang Dikerjakan</strong><div class="time">Proses perbaikan</div></div></div>`:''}
+        ${s.status==='selesai'||s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--green)"></div><div class="timeline-content"><strong>Selesai</strong><div class="time">Siap diambil</div></div></div>`:''}
+        ${s.status==='diambil'?`<div class="timeline-item"><div class="timeline-dot" style="background:var(--black)"></div><div class="timeline-content"><strong>Diambil</strong><div class="time">Pelanggan sudah mengambil</div></div></div>`:''}
+      </div>
+    </div>
+  `;
+  openModal('serviceDetailModal');
+}
+
+// ===== RENDER PELANGGAN =====
+function renderPelanggan(data){
+  const grid=document.getElementById('customerGrid');
+  grid.innerHTML=data.map(p=>`
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar" style="background:${p.color}">${p.nama.split(' ').map(n=>n[0]).join('')}</div>
+        <div>
+          <div class="profile-name">${p.nama}</div>
+          <div class="profile-phone">📱 ${p.noHP}</div>
+          <div class="profile-count">${p.servis}x servis di tempat kami</div>
+        </div>
+      </div>
+      <div class="profile-history">
+        ${p.riwayat.map(r=>`
+          <div class="history-item">
+            <div class="history-info">
+              <div class="hp-name">${r.hp}</div>
+              <div class="kerusakan">${r.kerusakan}</div>
+              <div class="tanggal">Masuk: ${r.masuk} ${r.selesai!=='-'?'&bull; Selesai: '+r.selesai:''}</div>
+            </div>
+            <span class="badge ${statusBadge[r.status]}">${statusLabel[r.status]}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('searchPelanggan').addEventListener('input',function(){
+  const q=this.value.toLowerCase();
+  renderPelanggan(pelangganData.filter(p=>p.nama.toLowerCase().includes(q)||p.noHP.includes(q)));
+});
+
+// ===== RENDER SPAREPART =====
+function renderSparepart(data){
+  const tbody=document.getElementById('sparepartTableBody');
+  tbody.innerHTML=data.map(s=>{
+    let stockStyle='';
+    if(s.stok===0)stockStyle='color:var(--red);font-weight:700';
+    else if(s.stok<=3)stockStyle='color:var(--orange);font-weight:600';
+    return `
+    <tr>
+      <td><div class="product-img">${s.icon}</div></td>
+      <td><strong>${s.nama}</strong><br><span style="font-size:11px;color:var(--text-lighter)">${s.kategori}</span></td>
+      <td><span style="font-family:monospace;font-size:12px">${s.sku}</span></td>
+      <td><span style="${stockStyle}">${s.stok} pcs</span></td>
+      <td><strong>Rp ${s.harga.toLocaleString('id-ID')}</strong></td>
+      <td>
+        <button class="filter-btn" style="padding:5px 10px;font-size:11px" onclick="event.stopPropagation()">✏️</button>
+        <button class="filter-btn" style="padding:5px 10px;font-size:11px;color:var(--red)" onclick="event.stopPropagation()">🗑️</button>
+      </td>
+    </tr>
+  `}).join('');
+}
+
+document.getElementById('searchSparepart').addEventListener('input',function(){
+  const q=this.value.toLowerCase();
+  renderSparepart(sparepartData.filter(s=>s.nama.toLowerCase().includes(q)||s.sku.toLowerCase().includes(q)));
+});
+
+
+
+// ===== INIT =====
+renderServis(servisData);
+renderPelanggan(pelangganData);
+renderSparepart(sparepartData);
+</script>
+</body>
+</html>
