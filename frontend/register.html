@@ -13,7 +13,7 @@
     <div class="login-card" style="max-width:460px">
       <div class="login-header">
         <div class="login-logo">
-          <img src="logo.png?v=1" alt="LoopFix" class="login-logo-img">
+          <img src="assets/logo.png?v=1" alt="LoopFix" class="login-logo-img">
           <div class="login-logo-text">Services Management</div>
         </div>
         <h1 style="font-size:20px;margin-top:12px">Daftar Akun Baru</h1>
@@ -122,6 +122,7 @@
     </div>
   </div>
 
+  <script src="api.js"></script>
   <script>
     lucide.createIcons();
 
@@ -137,11 +138,7 @@
       lucide.createIcons();
     }
 
-    function getUsers() {
-      return JSON.parse(localStorage.getItem('users') || '[]');
-    }
-
-    function handleRegister() {
+    async function handleRegister() {
       const nama = document.getElementById('regNama').value.trim();
       const username = document.getElementById('regUsername').value.trim();
       const email = document.getElementById('regEmail').value.trim();
@@ -174,40 +171,11 @@
         return;
       }
 
-      const users = getUsers();
-
-      if (users.find(u => u.username === username)) {
-        errorEl.querySelector('span').textContent = 'Username sudah digunakan';
-        errorEl.style.display = 'flex';
-        return;
-      }
-
-      if (users.find(u => u.email === email)) {
-        errorEl.querySelector('span').textContent = 'Email sudah terdaftar';
-        errorEl.style.display = 'flex';
-        return;
-      }
-
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span><span>Memproses...</span>';
 
-      setTimeout(() => {
-        const newUser = {
-          id: Date.now(),
-          nama,
-          username,
-          email,
-          noHP,
-          password,
-          role,
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-          activityLog: []
-        };
-
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-
+      try {
+        await api.register({ nama, username, email, no_hp: noHP, password, role });
         successEl.querySelector('span').textContent = 'Pendaftaran berhasil! Silakan tunggu persetujuan Superadmin.';
         successEl.style.display = 'flex';
         btn.disabled = false;
@@ -221,7 +189,13 @@
         document.getElementById('regPassword').value = '';
         document.getElementById('regConfirm').value = '';
         document.getElementById('regRole').value = '';
-      }, 1000);
+      } catch (e) {
+        errorEl.querySelector('span').textContent = e.message || 'Gagal mendaftar';
+        errorEl.style.display = 'flex';
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="user-plus"></i><span>Daftar</span>';
+        lucide.createIcons();
+      }
     }
 
     document.querySelectorAll('#regPassword, #regConfirm').forEach(el => {

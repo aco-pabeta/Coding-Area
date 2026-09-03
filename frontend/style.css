@@ -197,12 +197,40 @@ tr:hover td{background:#F8FAFC}
 .report-grid{grid-template-columns:1fr}
 }
 @media(max-width:768px){
-.sidebar{display:none}
-.main{margin-left:0;padding:16px}
+.sidebar{width:60px}
+.sidebar .logo-text,.sidebar .nav-section,.sidebar .nav-item span,.sidebar .sidebar-footer .user-info,.sidebar .sidebar-footer [onclick] span{display:none}
+.sidebar .logo{max-width:40px}
+.sidebar .logo .logo-img{max-width:40px}
+.nav-item{justify-content:center;padding:10px}
+.main{margin-left:60px;padding:12px}
 .summary-grid,.stock-summary,.fin-summary{grid-template-columns:1fr 1fr}
 .customer-grid{grid-template-columns:1fr}
 .login-card{padding:32px 24px}
 .login-container{padding:16px}
+}
+@media(max-width:480px){
+.sidebar{width:50px}
+.main{margin-left:50px;padding:10px}
+.page-header h1{font-size:16px}
+.stat-card .stat-value{font-size:20px}
+.summary-grid{grid-template-columns:1fr}
+.stock-summary,.fin-summary{grid-template-columns:1fr}
+.table-wrap{font-size:12px}
+th{padding:8px 10px}
+td{padding:8px 10px}
+.login-card{padding:24px 16px}
+.login-header h1{font-size:20px}
+.input-icon input{font-size:13px;padding:10px 10px 10px 36px}
+.btn-login{padding:11px;font-size:13px}
+.customer-grid{grid-template-columns:1fr}
+.profile-card .profile-avatar{width:36px;height:36px;font-size:14px}
+.user-modal{width:95vw}
+.user-modal-avatar{width:44px;height:44px;font-size:16px}
+.user-detail-row{font-size:11px}
+.badge{padding:3px 7px;font-size:10px}
+.filter-btn{padding:6px 10px;font-size:11px}
+.summary-grid{gap:10px}
+.stat-card{padding:14px 12px}
 }
 
 /* LOGIN PAGE */

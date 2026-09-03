@@ -32,7 +32,7 @@
 
 <aside class="sidebar">
   <div class="logo">
-    <img src="logo.png?v=1" alt="LoopFix" class="logo-img">
+    <img src="assets/logo.png?v=1" alt="LoopFix" class="logo-img">
     <div class="logo-text">
       <span>Services Management</span>
     </div>
@@ -85,77 +85,45 @@
     <div class="summary-grid">
       <div class="stat-card">
         <div class="stat-icon" style="background:var(--primary-50);color:var(--primary)"><i data-lucide="clipboard-list"></i></div>
-        <div class="stat-value">48</div>
+        <div class="stat-value" id="stat-total">0</div>
         <div class="stat-label">Total Servis</div>
-        <span class="stat-change up">↑ 12% dari bulan lalu</span>
       </div>
       <div class="stat-card">
         <div class="stat-icon" style="background:#FEF3C7;color:#D97706"><i data-lucide="clock"></i></div>
-        <div class="stat-value">12</div>
-        <div class="stat-label">Menunggu</div>
-        <span class="stat-change down">↑ 3 hari ini</span>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background:#FFEDD5;color:#EA580C"><i data-lucide="hammer"></i></div>
-        <div class="stat-value">18</div>
-        <div class="stat-label">Dikerjakan</div>
-        <span class="stat-change up">↑ 5 hari ini</span>
+        <div class="stat-value" id="stat-active">0</div>
+        <div class="stat-label">Menunggu/Dikerjakan</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon" style="background:#D1FAE5;color:#059669"><i data-lucide="check-circle-2"></i></div>
-        <div class="stat-value">15</div>
+        <div class="stat-value" id="stat-completed">0</div>
         <div class="stat-label">Selesai</div>
-        <span class="stat-change up">↑ 8 minggu ini</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#EDE9FE;color:#7C3AED"><i data-lucide="trending-up"></i></div>
+        <div class="stat-value" id="stat-customers">0</div>
+        <div class="stat-label">Total Pelanggan</div>
       </div>
     </div>
     <div class="summary-grid" style="grid-template-columns:1fr 2fr">
       <div class="stat-card">
-        <div class="stat-icon" style="background:#EDE9FE;color:#7C3AED"><i data-lucide="trending-up"></i></div>
-        <div class="stat-value">48</div>
-        <div class="stat-label">Statistik Servis Bulan Ini</div>
+        <div class="stat-icon" style="background:#DBEAFE;color:var(--primary)"><i data-lucide="package"></i></div>
+        <div class="stat-value" id="stat-spareparts">0</div>
+        <div class="stat-label">Total Sparepart</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background:#DBEAFE;color:var(--primary)"><i data-lucide="banknote"></i></div>
-        <div class="stat-value">Rp 8.450.000</div>
-        <div class="stat-label">Total Pendapatan Bulan Ini</div>
-        <span class="stat-change up">↑ 18% dari bulan lalu</span>
+        <div class="stat-icon" style="background:#D1FAE5;color:#059669"><i data-lucide="banknote"></i></div>
+        <div class="stat-value" id="stat-revenue">Rp 0</div>
+        <div class="stat-label">Total Pendapatan</div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px">
+    <div style="display:grid;grid-template-columns:1fr;gap:14px">
       <div>
         <div class="section-title">Servisan Terbaru</div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Invoice</th><th>Pelanggan</th><th>HP</th><th>Kerusakan</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td><strong>#INV-0048</strong></td><td>Rina Sari</td><td>iPhone 14 Pro</td><td>Layar Retak</td><td><span class="badge badge-orange">Dikerjakan</span></td></tr>
-              <tr><td><strong>#INV-0047</strong></td><td>Budi Santoso</td><td>Samsung A54</td><td>Baterai Kembung</td><td><span class="badge badge-yellow">Menunggu</span></td></tr>
-              <tr><td><strong>#INV-0046</strong></td><td>Dewi Lestari</td><td>Redmi Note 12</td><td>Charging Port</td><td><span class="badge badge-purple">Menunggu Sparepart</span></td></tr>
-              <tr><td><strong>#INV-0045</strong></td><td>Andi Pratama</td><td>OPPO Reno 8</td><td>Sinyal Hilang</td><td><span class="badge badge-green">Selesai</span></td></tr>
-              <tr><td><strong>#INV-0044</strong></td><td>Sari Melati</td><td>Vivo Y36</td><td>Tombol Power</td><td><span class="badge badge-black">Diambil</span></td></tr>
-            </tbody>
+            <tbody id="dashboardServisTable"></tbody>
           </table>
-        </div>
-      </div>
-      <div>
-        <div class="section-title">Status Hari Ini</div>
-        <div class="table-wrap" style="padding:18px">
-          <div style="margin-bottom:14px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--text-secondary)">Selesai</span><span style="font-size:12px;font-weight:700">5 unit</span></div>
-            <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:60%;height:100%;background:#059669;border-radius:3px"></div></div>
-          </div>
-          <div style="margin-bottom:14px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--text-secondary)">Dikerjakan</span><span style="font-size:12px;font-weight:700">3 unit</span></div>
-            <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:36%;height:100%;background:#EA580C;border-radius:3px"></div></div>
-          </div>
-          <div style="margin-bottom:14px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--text-secondary)">Menunggu</span><span style="font-size:12px;font-weight:700">2 unit</span></div>
-            <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:24%;height:100%;background:#D97706;border-radius:3px"></div></div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--text-secondary)">Batal</span><span style="font-size:12px;font-weight:700">0 unit</span></div>
-            <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:0%;height:100%;background:#DC2626;border-radius:3px"></div></div>
-          </div>
         </div>
       </div>
     </div>
@@ -165,7 +133,7 @@
   <div id="page-servis" class="page">
     <div class="page-header">
       <div><h1>Data Servis</h1><p>Kelola semua data servis dalam satu tempat</p></div>
-      <button class="btn-primary" onclick="openModal('addServiceModal')"><i data-lucide="plus"></i> Servis</button>
+      <button class="btn-primary" onclick="openAddService()"><i data-lucide="plus"></i> Servis</button>
     </div>
     <div class="table-wrap">
       <div class="table-toolbar">
@@ -526,19 +494,19 @@
   <div class="modal">
     <div class="modal-header"><h3>Tambah Servis Baru</h3><button class="modal-close" onclick="closeModal('addServiceModal')"><i data-lucide="x"></i></button></div>
     <div class="modal-body">
-      <div class="form-group"><label>Pelanggan</label><select><option>Pilih pelanggan...</option><option>Rina Sari</option><option>Budi Santoso</option><option>Dewi Lestari</option></select></div>
+      <div class="form-group"><label>Pelanggan</label><select id="svcPelanggan"><option value="">Pilih pelanggan...</option></select></div>
       <div class="form-row">
-        <div class="form-group"><label>Jenis HP</label><input type="text" placeholder="iPhone 14 Pro"></div>
-        <div class="form-group"><label>IMEI</label><input type="text" placeholder="Masukkan IMEI"></div>
+        <div class="form-group"><label>Jenis HP</label><input type="text" id="svcHP" placeholder="iPhone 14 Pro"></div>
+        <div class="form-group"><label>IMEI</label><input type="text" id="svcIMEI" placeholder="Masukkan IMEI"></div>
       </div>
-      <div class="form-group"><label>Kerusakan</label><textarea rows="2" placeholder="Deskripsikan kerusakan..."></textarea></div>
+      <div class="form-group"><label>Kerusakan</label><textarea id="svcKerusakan" rows="2" placeholder="Deskripsikan kerusakan..."></textarea></div>
       <div class="form-row">
-        <div class="form-group"><label>Teknisi</label><select><option>Pilih teknisi...</option><option>Kurniawan</option><option>Andi</option><option>Rudi</option></select></div>
-        <div class="form-group"><label>Estimasi Biaya</label><input type="text" placeholder="Rp 0"></div>
+        <div class="form-group"><label>Teknisi</label><select id="svcTeknisi"><option value="">Pilih teknisi...</option></select></div>
+        <div class="form-group"><label>Estimasi Biaya</label><input type="text" id="svcBiaya" placeholder="Rp 0"></div>
       </div>
-      <div class="form-group"><label>Catatan</label><textarea rows="2" placeholder="Catatan tambahan..."></textarea></div>
+      <div class="form-group"><label>Catatan</label><textarea id="svcCatatan" rows="2" placeholder="Catatan tambahan..."></textarea></div>
     </div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('addServiceModal')">Batal</button><button class="btn-primary" onclick="closeModal('addServiceModal')">Simpan</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('addServiceModal')">Batal</button><button class="btn-primary" onclick="saveService()">Simpan</button></div>
   </div>
 </div>
 
@@ -555,14 +523,12 @@
   <div class="modal">
     <div class="modal-header"><h3>Tambah Pelanggan</h3><button class="modal-close" onclick="closeModal('addCustomerModal')"><i data-lucide="x"></i></button></div>
     <div class="modal-body">
-      <div class="form-group"><label>Nama Lengkap</label><input type="text" placeholder="Nama pelanggan"></div>
+      <div class="form-group"><label>Nama Lengkap</label><input type="text" id="custNama" placeholder="Nama pelanggan"></div>
       <div class="form-row">
-        <div class="form-group"><label>No. HP</label><input type="text" placeholder="08xxxxxxxxxx"></div>
-        <div class="form-group"><label>Email (opsional)</label><input type="email" placeholder="email@domain.com"></div>
+        <div class="form-group"><label>No. HP</label><input type="text" id="custNoHP" placeholder="08xxxxxxxxxx"></div>
       </div>
-      <div class="form-group"><label>Alamat (opsional)</label><textarea rows="2" placeholder="Alamat lengkap..."></textarea></div>
     </div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('addCustomerModal')">Batal</button><button class="btn-primary" onclick="closeModal('addCustomerModal')">Simpan</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('addCustomerModal')">Batal</button><button class="btn-primary" onclick="saveCustomer()">Simpan</button></div>
   </div>
 </div>
 
@@ -571,18 +537,18 @@
   <div class="modal">
     <div class="modal-header"><h3>Tambah Sparepart</h3><button class="modal-close" onclick="closeModal('addSparepartModal')"><i data-lucide="x"></i></button></div>
     <div class="modal-body">
-      <div class="form-group"><label>Nama Sparepart</label><input type="text" placeholder="LCD iPhone 14 Pro"></div>
+      <div class="form-group"><label>Nama Sparepart</label><input type="text" id="spNama" placeholder="LCD iPhone 14 Pro"></div>
       <div class="form-row">
-        <div class="form-group"><label>SKU</label><input type="text" placeholder="SKU-XXXX"></div>
-        <div class="form-group"><label>Stok</label><input type="number" placeholder="0"></div>
+        <div class="form-group"><label>SKU</label><input type="text" id="spSKU" placeholder="SKU-XXXX"></div>
+        <div class="form-group"><label>Stok</label><input type="number" id="spStok" placeholder="0"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Harga Beli</label><input type="text" placeholder="Rp 0"></div>
-        <div class="form-group"><label>Harga Jual</label><input type="text" placeholder="Rp 0"></div>
+        <div class="form-group"><label>Harga Beli</label><input type="text" placeholder="Rp 0" disabled></div>
+        <div class="form-group"><label>Harga Jual</label><input type="text" id="spHarga" placeholder="Rp 0"></div>
       </div>
-      <div class="form-group"><label>Kategori</label><select><option>Layar</option><option>Baterai</option><option>Charging</option><option>Kamera</option><option>Sensor</option><option>Lainnya</option></select></div>
+      <div class="form-group"><label>Kategori</label><select id="spKategori"><option>Layar</option><option>Baterai</option><option>Charging</option><option>Kamera</option><option>Sensor</option><option>Lainnya</option></select></div>
     </div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('addSparepartModal')">Batal</button><button class="btn-primary" onclick="closeModal('addSparepartModal')">Simpan</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('addSparepartModal')">Batal</button><button class="btn-primary" onclick="saveSparepart()">Simpan</button></div>
   </div>
 </div>
 
@@ -631,6 +597,7 @@
   </div>
 </div>
 
+<script src="api.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
