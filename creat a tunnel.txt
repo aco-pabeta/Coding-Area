@@ -1,0 +1,20 @@
+creat a tunnel
+Tunel name : Fix
+tunel ID :	bdaa0d20-a2cc-444f-bf1c-58eb101dccb1
+
+
+cloudflared.exe service install eyJhIjoiMGUxZDIwZGZiMTQxZjdhOWI4OThiOWQ4NTMxODM3NDQiLCJ0IjoiYmRhYTBkMjAtYTJjYy00NDRmLWJmMWMtNThlYjEwMWRjY2IxIiwicyI6Ik16Z3hPVE14WXpVdFpqZzVOQzAwTlRJMUxUZzBNREF0TURJek5tUmpOV1V4TmpNMCJ9
+
+
+.cfargotunnel.com
+
+cloudflared tunnel login
+
+cloudflared tunnel list
+
+winget install --id Cloudflare.cloudflared --exact
+
+CNAME - myfix
+
+
+buatkan configurasi tunnelnya biar bisa online terus buatkan BAT file untuk menjalankan tunnelnya
