@@ -61,6 +61,7 @@ function showPage(name,el){
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el)el.classList.add('active');
+  if(window.innerWidth<=860)closeSidebar();
   lucide.createIcons();
   if(name==='dashboard')loadDashboard();
   if(name==='servis')loadServices();
@@ -71,6 +72,19 @@ function showPage(name,el){
 
 function openModal(id){document.getElementById(id).classList.add('show');lucide.createIcons()}
 function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+// ===== MOBILE SIDEBAR =====
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+document.getElementById('sidebarOverlay').addEventListener('click',closeSidebar);
+window.addEventListener('resize',()=>{if(window.innerWidth>860)closeSidebar()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSidebar()});
 document.querySelectorAll('.modal-overlay').forEach(m=>{
   m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')});
 });

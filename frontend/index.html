@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LoopFix - Manajemen Servis HP</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=3">
 <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -30,7 +30,14 @@
 })();
 </script>
 
-<aside class="sidebar">
+<div class="topbar">
+  <button class="topbar-btn" onclick="toggleSidebar()" aria-label="Buka menu"><i data-lucide="menu"></i></button>
+  <div class="topbar-title">LoopFix</div>
+  <button class="topbar-btn" onclick="handleLogout()" aria-label="Keluar"><i data-lucide="log-out"></i></button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
   <div class="logo">
     <img src="assets/logo.png?v=1" alt="LoopFix" class="logo-img">
     <div class="logo-text">
@@ -104,7 +111,7 @@
         <div class="stat-label">Total Pelanggan</div>
       </div>
     </div>
-    <div class="summary-grid" style="grid-template-columns:1fr 2fr">
+    <div class="summary-grid split-grid">
       <div class="stat-card">
         <div class="stat-icon" style="background:#DBEAFE;color:var(--primary)"><i data-lucide="package"></i></div>
         <div class="stat-value" id="stat-spareparts">0</div>
@@ -116,7 +123,7 @@
         <div class="stat-label">Total Pendapatan</div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr;gap:14px">
+    <div class="stack-grid">
       <div>
         <div class="section-title">Servisan Terbaru</div>
         <div class="table-wrap">
@@ -224,7 +231,7 @@
       </div>
     </div>
     <div class="chart-container">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="row-between" style="margin-bottom:16px">
         <h3 style="font-size:14px;font-weight:700">Grafik Pendapatan</h3>
       </div>
       <div style="display:flex;align-items:flex-end;gap:8px;height:110px;padding:0 4px">
@@ -240,7 +247,7 @@
       </div>
     </div>
     <div class="table-wrap">
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center">
+      <div class="row-between" style="padding:14px 16px;border-bottom:1px solid var(--border-light)">
         <div class="section-title" style="margin:0">Transaksi Terbaru</div>
       </div>
       <table>
@@ -259,13 +266,13 @@
   <div id="page-laporan" class="page">
     <div class="page-header">
       <div><h1>Laporan</h1><p>Analitik performa bisnis servis HP</p></div>
-      <div style="display:flex;gap:8px">
+      <div class="page-actions">
         <button class="filter-btn"><i data-lucide="file-spreadsheet"></i> Excel</button>
         <button class="filter-btn"><i data-lucide="file-text"></i> PDF</button>
         <button class="filter-btn"><i data-lucide="printer"></i> Cetak</button>
       </div>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:20px;align-items:center">
+    <div class="page-subbar">
       <span style="font-size:12px;color:var(--text-secondary);font-weight:500">Periode</span>
       <select class="filter-btn" style="min-width:160px"><option>September 2026</option><option>Agustus 2026</option><option>Juli 2026</option></select>
     </div>
@@ -512,7 +519,7 @@
 
 <!-- MODAL: SERVICE DETAIL -->
 <div class="modal-overlay" id="serviceDetailModal">
-  <div class="modal" style="width:520px">
+  <div class="modal">
     <div class="modal-header"><h3>Detail Servis</h3><button class="modal-close" onclick="closeModal('serviceDetailModal')"><i data-lucide="x"></i></button></div>
     <div class="modal-body" id="serviceDetailContent"></div>
   </div>
@@ -597,7 +604,7 @@
   </div>
 </div>
 
-<script src="api.js"></script>
-<script src="script.js"></script>
+<script src="api.js?v=3"></script>
+<script src="script.js?v=3"></script>
 </body>
 </html>

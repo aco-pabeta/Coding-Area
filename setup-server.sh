@@ -5,10 +5,10 @@
 #   bash setup-server.sh
 # ============================================
 
-PASS="camar007"
+PASS="GANTI_DENGAN_PASSWORD_SUDO_SERVER"
 REPO_URL="https://github.com/aco-pabeta/Coding-Area.git"
 INSTALL_DIR="/home/myfix/Coding-Area"
-TUNNEL_TOKEN="eyJhIjoiMGUxZDIwZGZiMTQxZjdhOWI4OThiOWQ4NTMxODM3NDQiLCJ0IjoiYmRhYTBkMjAtYTJjYy00NDRmLWJmMWMtNThlYjEwMWRjY2IxIiwicyI6Ik16Z3hPVE14WXpVdFpqZzVOQzAwTlRJMUxUZzBNREF0TURJek5tUmpOV1V4TmpNMCJ9"
+TUNNEL_TOKEN="GANTI_DENGAN_TOKEN_TUNNEL_CLOUDFLARE"
 
 echo "============================================"
 echo " LOOPFIX - AUTOMATIC SERVER SETUP"
